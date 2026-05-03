@@ -60,6 +60,13 @@ export interface DashboardSnapshot {
   mode: CycleMode;
   isRealtime: boolean;
   interval: MarketInterval;
+  chartConnection: {
+    previousCycleId: string | null;
+    previousCycleLabel: string | null;
+    bridgeStartPrice: number | null;
+    bridgeEndPrice: number | null;
+    bullLeadTargetPrice: number;
+  };
   assumptions: string[];
   disclaimer: string;
 }

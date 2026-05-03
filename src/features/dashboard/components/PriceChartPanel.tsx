@@ -9,6 +9,8 @@ interface PriceChartPanelProps {
 const chartLegend = [
   { label: "Bull Candle", color: "#089981" },
   { label: "Bear Candle", color: "#f23645" },
+  { label: "Selected Cycle Line", color: "#38bdf8" },
+  { label: "Bull Lead Path", color: "#f59e0b" },
   { label: "Bull Levels", color: "#84cc16" },
   { label: "ATH Reference", color: "#F7931A" },
   { label: "Bear Levels", color: "#fb7185" },
@@ -62,7 +64,7 @@ export function PriceChartPanel({ snapshot }: PriceChartPanelProps) {
         <div>
           <h2 className="text-sm font-medium text-zinc-200">Bull/Bear Market Map</h2>
           <p className="text-[11px] text-zinc-500">
-            {snapshot.selectedCycle.label} · Halving {snapshot.selectedCycle.halvingDate} · {snapshot.mode}
+            {snapshot.selectedCycle.label} | Halving {snapshot.selectedCycle.halvingDate} | {snapshot.mode}
           </p>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -84,6 +86,10 @@ export function PriceChartPanel({ snapshot }: PriceChartPanelProps) {
             <InteractiveMarketChart
               candles={snapshot.market.candles}
               levels={chartLevels}
+              mode={snapshot.mode}
+              cycleKind={snapshot.selectedCycle.kind}
+              chartConnection={snapshot.chartConnection}
+              projectedBearLowPrice={snapshot.projections.bear.projectedLow}
               intervalKey={`${snapshot.market.interval}-${snapshot.selectedCycle.id}`}
             />
           </div>

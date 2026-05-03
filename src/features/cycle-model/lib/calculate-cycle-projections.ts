@@ -167,6 +167,14 @@ function getCycleNodeById(chain: CycleChainNode[], cycleId: string | null | unde
   return chain.find((node) => node.descriptor.id === cycleId) ?? currentNode;
 }
 
+function getPreviousNode(chain: CycleChainNode[], node: CycleChainNode): CycleChainNode | null {
+  const index = chain.findIndex((item) => item.descriptor.id === node.descriptor.id);
+  if (index <= 0) {
+    return null;
+  }
+  return chain[index - 1] ?? null;
+}
+
 function buildCycleCatalog(chain: CycleChainNode[]): CycleCatalog {
   return chain.map((node) => node.descriptor);
 }
@@ -379,6 +387,7 @@ export function buildRealtimeDashboardSnapshot(options: {
   const currentNode = getCycleNodeById(chain, getCurrentCycleId());
   const selectedNode = options.cycleId ? getCycleNodeById(chain, options.cycleId) : currentNode;
   const realtimeNode = selectedNode.descriptor.kind === "current" ? selectedNode : currentNode;
+  const previousNode = getPreviousNode(chain, realtimeNode);
 
   return {
     market: options.market,
@@ -389,6 +398,13 @@ export function buildRealtimeDashboardSnapshot(options: {
     mode: "realtime",
     isRealtime: true,
     interval: options.market.interval,
+    chartConnection: {
+      previousCycleId: previousNode?.descriptor.id ?? null,
+      previousCycleLabel: previousNode?.descriptor.label ?? null,
+      bridgeStartPrice: previousNode ? previousNode.projections.bear.fib236 : null,
+      bridgeEndPrice: previousNode ? realtimeNode.anchor.previousLow : null,
+      bullLeadTargetPrice: realtimeNode.projections.bull[1].projectedPrice,
+    },
     assumptions: getAssumptionMessages("realtime"),
     disclaimer:
       "This tool is for educational and research purposes only. It does not provide financial advice, investment recommendations, or guaranteed predictions.",
@@ -404,6 +420,7 @@ export function buildAssumptionDashboardSnapshot(options: {
 }): DashboardSnapshot {
   const chain = buildCycleChain(options.lastHalvingYear ?? LAST_HALVING_YEAR);
   const selectedNode = getCycleNodeById(chain, options.cycleId);
+  const previousNode = getPreviousNode(chain, selectedNode);
   const market = buildSyntheticMarketPayload({
     node: selectedNode,
     interval: options.interval,
@@ -420,6 +437,13 @@ export function buildAssumptionDashboardSnapshot(options: {
     mode: "assumption",
     isRealtime: false,
     interval: options.interval,
+    chartConnection: {
+      previousCycleId: previousNode?.descriptor.id ?? null,
+      previousCycleLabel: previousNode?.descriptor.label ?? null,
+      bridgeStartPrice: previousNode ? previousNode.projections.bear.fib236 : null,
+      bridgeEndPrice: selectedNode.anchor.previousLow,
+      bullLeadTargetPrice: selectedNode.projections.bull[1].projectedPrice,
+    },
     assumptions: getAssumptionMessages("assumption"),
     disclaimer:
       "This tool is for educational and research purposes only. It does not provide financial advice, investment recommendations, or guaranteed predictions.",
