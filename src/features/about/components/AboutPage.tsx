@@ -65,11 +65,12 @@ export function AboutPage() {
           </div>
         </section>
 
-        <section className="mt-4 rounded-xl border border-[#F7931A]/30 bg-[#F7931A]/10 p-4">
-          <p className="text-xs uppercase tracking-wide text-[#F7931A]">Project Scope</p>
+        {/* Disclaimer */}
+        <section className="rounded-xl border border-[#F7931A]/30 bg-[#F7931A]/10 p-4 mt-4">
+          <p className="text-xs uppercase tracking-wide text-[#F7931A]">Disclaimer</p>
           <p className="mt-2 text-sm leading-relaxed text-zinc-200">
-            FibraX is built for educational research and portfolio demonstration. It is not financial advice and should
-            not be used as the sole basis for investment decisions.
+            FibraX is for educational and research purposes only. It is not financial advice, not an investment
+            recommendation, and not a guarantee of future market behavior.
           </p>
         </section>
       </div>

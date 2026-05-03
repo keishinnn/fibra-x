@@ -4,6 +4,7 @@ import type { DashboardSnapshot } from "@/features/cycle-model/types/cycle-model
 
 interface PriceChartPanelProps {
   snapshot: DashboardSnapshot;
+  isHistoricalCycleLoading: boolean;
 }
 
 const baseLegend = [
@@ -85,7 +86,7 @@ function getPhaseTitle(snapshot: DashboardSnapshot): string {
   return "Current Cycle Snapshot";
 }
 
-export function PriceChartPanel({ snapshot }: PriceChartPanelProps) {
+export function PriceChartPanel({ snapshot, isHistoricalCycleLoading }: PriceChartPanelProps) {
   const chartLevels = buildChartLevels(snapshot);
   const visibleLegend = buildLegend(snapshot);
   const isHistorical = snapshot.mode === "historical";
@@ -113,71 +114,102 @@ export function PriceChartPanel({ snapshot }: PriceChartPanelProps) {
       </div>
 
       <div className="mt-3 rounded-lg border border-zinc-900 bg-black/60 p-2.5 sm:p-3">
-        <div className="grid gap-3 xl:grid-cols-[1.45fr_0.85fr]">
-          <div className="h-[300px] overflow-hidden rounded-md border border-zinc-900 bg-black/75 sm:h-[430px]">
-            <InteractiveMarketChart
-              candles={snapshot.market.candles}
-              levels={chartLevels}
-              mode={snapshot.mode}
-              cycleKind={snapshot.selectedCycle.kind}
-              chartConnection={snapshot.chartConnection}
-              projectedBearLowPrice={snapshot.projections.bear.projectedLow}
-              intervalKey={`${snapshot.market.interval}-${snapshot.selectedCycle.id}`}
-            />
-          </div>
-
-          <aside className="rounded-md border border-zinc-900 bg-zinc-950/80 p-3.5">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">{getPhaseTitle(snapshot)}</p>
-            <p className="mt-1.5 text-xl font-semibold text-zinc-100">{snapshot.phaseState.phase}</p>
-            <p className="mt-2 text-xs leading-relaxed text-zinc-400">{snapshot.phaseState.note}</p>
-
-            <div className="mt-4 grid gap-2">
-              <article className="rounded-md border border-zinc-900 bg-black/45 p-2.5">
-                <p className="text-[11px] uppercase tracking-wide text-zinc-500">Fib 0.236 Bear Start</p>
-                <p className="mt-1 text-sm font-medium text-zinc-100">{formatUsd(snapshot.projections.bear.fib236)}</p>
-              </article>
-              <article className="rounded-md border border-zinc-900 bg-black/45 p-2.5">
-                <p className="text-[11px] uppercase tracking-wide text-zinc-500">Bear Low (Base)</p>
-                <p className="mt-1 text-sm font-medium text-zinc-100">
-                  {formatUsd(snapshot.projections.bear.projectedLow)} ({snapshot.projections.bear.drawdownPct}%)
-                </p>
-              </article>
-              {isHistorical ? null : (
-                <article className="rounded-md border border-zinc-900 bg-black/45 p-2.5">
-                  <p className="text-[11px] uppercase tracking-wide text-zinc-500">Bull Zone</p>
-                  <p className="mt-1 text-sm font-medium text-zinc-100">{snapshot.phaseState.activeZone}</p>
-                </article>
-              )}
+        {isHistoricalCycleLoading ? (
+          <div className="space-y-3 animate-pulse">
+            <div className="grid gap-3 xl:grid-cols-[1.45fr_0.85fr]">
+              <div className="h-[300px] rounded-md border border-zinc-900 bg-zinc-900/70 sm:h-[430px]" />
+              <aside className="rounded-md border border-zinc-900 bg-zinc-950/80 p-3.5">
+                <div className="h-3 w-36 rounded bg-zinc-800" />
+                <div className="mt-3 h-6 w-40 rounded bg-zinc-800" />
+                <div className="mt-2 h-3 w-full rounded bg-zinc-800" />
+                <div className="mt-1.5 h-3 w-5/6 rounded bg-zinc-800" />
+                <div className="mt-4 grid gap-2">
+                  <div className="h-14 rounded-md border border-zinc-900 bg-zinc-900/75" />
+                  <div className="h-14 rounded-md border border-zinc-900 bg-zinc-900/75" />
+                  <div className="h-14 rounded-md border border-zinc-900 bg-zinc-900/75" />
+                </div>
+              </aside>
             </div>
-          </aside>
-        </div>
-
-        <details className="mt-3 rounded-md border border-zinc-900 bg-zinc-950/80 p-3">
-          <summary className="cursor-pointer text-xs font-medium uppercase tracking-wide text-zinc-400">
-            Advanced Model Details
-          </summary>
-          <div className="mt-3 space-y-3">
-            <div className="grid gap-2 sm:grid-cols-3">
-              {snapshot.projections.bear.scenarios.map((scenario) => (
-                <article key={scenario.id} className="rounded-md border border-zinc-900 bg-black/45 p-2.5">
-                  <p className="text-[11px] uppercase tracking-wide text-zinc-500">{scenario.label}</p>
-                  <p className="mt-1 text-sm font-medium text-zinc-200">
-                    {formatUsd(scenario.projectedLow)} ({scenario.drawdownPct}%)
-                  </p>
-                </article>
-              ))}
+            <div className="rounded-md border border-zinc-900 bg-zinc-950/80 p-3">
+              <div className="h-3 w-44 rounded bg-zinc-800" />
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <div className="h-12 rounded-md border border-zinc-900 bg-zinc-900/75" />
+                <div className="h-12 rounded-md border border-zinc-900 bg-zinc-900/75" />
+                <div className="h-12 rounded-md border border-zinc-900 bg-zinc-900/75" />
+              </div>
             </div>
-            <ul className="space-y-1 text-xs leading-relaxed text-zinc-300">
-              {snapshot.assumptions.map((assumption) => (
-                <li key={assumption}>- {assumption}</li>
-              ))}
-            </ul>
           </div>
-        </details>
+        ) : (
+          <>
+            <div className="grid gap-3 xl:grid-cols-[1.45fr_0.85fr]">
+              <div className="h-[300px] overflow-hidden rounded-md border border-zinc-900 bg-black/75 sm:h-[430px]">
+                <InteractiveMarketChart
+                  candles={snapshot.market.candles}
+                  levels={chartLevels}
+                  mode={snapshot.mode}
+                  cycleKind={snapshot.selectedCycle.kind}
+                  chartConnection={snapshot.chartConnection}
+                  projectedBearLowPrice={snapshot.projections.bear.projectedLow}
+                  intervalKey={`${snapshot.market.interval}-${snapshot.selectedCycle.id}`}
+                />
+              </div>
+
+              <aside className="rounded-md border border-zinc-900 bg-zinc-950/80 p-3.5">
+                <p className="text-xs uppercase tracking-wide text-zinc-500">{getPhaseTitle(snapshot)}</p>
+                <p className="mt-1.5 text-xl font-semibold text-zinc-100">{snapshot.phaseState.phase}</p>
+                <p className="mt-2 text-xs leading-relaxed text-zinc-400">{snapshot.phaseState.note}</p>
+
+                <div className="mt-4 grid gap-2">
+                  <article className="rounded-md border border-zinc-900 bg-black/45 p-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-zinc-500">Fib 0.236 Bear Start</p>
+                    <p className="mt-1 text-sm font-medium text-zinc-100">
+                      {formatUsd(snapshot.projections.bear.fib236)}
+                    </p>
+                  </article>
+                  <article className="rounded-md border border-zinc-900 bg-black/45 p-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-zinc-500">Bear Low (Base)</p>
+                    <p className="mt-1 text-sm font-medium text-zinc-100">
+                      {formatUsd(snapshot.projections.bear.projectedLow)} ({snapshot.projections.bear.drawdownPct}%)
+                    </p>
+                  </article>
+                  {isHistorical ? null : (
+                    <article className="rounded-md border border-zinc-900 bg-black/45 p-2.5">
+                      <p className="text-[11px] uppercase tracking-wide text-zinc-500">Bull Zone</p>
+                      <p className="mt-1 text-sm font-medium text-zinc-100">{snapshot.phaseState.activeZone}</p>
+                    </article>
+                  )}
+                </div>
+              </aside>
+            </div>
+
+            <details className="mt-3 rounded-md border border-zinc-900 bg-zinc-950/80 p-3">
+              <summary className="cursor-pointer text-xs font-medium uppercase tracking-wide text-zinc-400">
+                Advanced Model Details
+              </summary>
+              <div className="mt-3 space-y-3">
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {snapshot.projections.bear.scenarios.map((scenario) => (
+                    <article key={scenario.id} className="rounded-md border border-zinc-900 bg-black/45 p-2.5">
+                      <p className="text-[11px] uppercase tracking-wide text-zinc-500">{scenario.label}</p>
+                      <p className="mt-1 text-sm font-medium text-zinc-200">
+                        {formatUsd(scenario.projectedLow)} ({scenario.drawdownPct}%)
+                      </p>
+                    </article>
+                  ))}
+                </div>
+                <ul className="space-y-1 text-xs leading-relaxed text-zinc-300">
+                  {snapshot.assumptions.map((assumption) => (
+                    <li key={assumption}>- {assumption}</li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          </>
+        )}
 
         {/* Disclaimer */}
-        <section className="rounded-xl border border-[#F7931A]/30 bg-[#F7931A]/10 p-4 mt-3">
-          <p className="text-xs uppercase tracking-wide text-[#F7931A]">Research Disclaimer</p>
+        <section className="rounded-xl border border-[#F7931A]/30 bg-[#F7931A]/10 p-4 mt-4">
+          <p className="text-xs uppercase tracking-wide text-[#F7931A]">Disclaimer</p>
           <p className="mt-2 text-sm leading-relaxed text-zinc-200">
             FibraX is for educational and research purposes only. It is not financial advice, not an investment
             recommendation, and not a guarantee of future market behavior.

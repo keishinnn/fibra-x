@@ -13,6 +13,8 @@ export function DashboardRealtimeView() {
     setSelectedCycleId,
     snapshot,
     isLoading,
+    isHistoricalCycleLoading,
+    isCurrentCyclePageLoading,
     isStale,
     errorMessage,
     dataSource,
@@ -33,24 +35,50 @@ export function DashboardRealtimeView() {
           cycleCatalog={snapshot.cycleCatalog}
           onCycleChange={setSelectedCycleId}
           isRefreshing={isLoading}
+          isHistoricalCycleLoading={isHistoricalCycleLoading}
+          isCurrentCyclePageLoading={isCurrentCyclePageLoading}
         />
 
-        {isStale && errorMessage ? (
-          <section className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
-            Live feed is temporarily unavailable. Showing fallback data. Reason: {errorMessage}
+        {isCurrentCyclePageLoading ? (
+          <section className="space-y-4 animate-pulse">
+            <section className="rounded-xl border border-zinc-900 bg-zinc-950/75 p-3 sm:p-5">
+              <div className="h-4 w-44 rounded bg-zinc-800" />
+              <div className="mt-3 h-[300px] rounded-md border border-zinc-900 bg-zinc-900/70 sm:h-[430px]" />
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <div className="h-12 rounded-md border border-zinc-900 bg-zinc-900/75" />
+                <div className="h-12 rounded-md border border-zinc-900 bg-zinc-900/75" />
+                <div className="h-12 rounded-md border border-zinc-900 bg-zinc-900/75" />
+              </div>
+            </section>
+            <section className="rounded-xl border border-zinc-900 bg-zinc-950/75 p-4 sm:p-5">
+              <div className="h-3 w-52 rounded bg-zinc-800" />
+              <div className="mt-3 space-y-2">
+                <div className="h-10 rounded-md border border-zinc-900 bg-zinc-900/75" />
+                <div className="h-10 rounded-md border border-zinc-900 bg-zinc-900/75" />
+                <div className="h-10 rounded-md border border-zinc-900 bg-zinc-900/75" />
+              </div>
+            </section>
           </section>
-        ) : null}
+        ) : (
+          <>
+            {isStale && errorMessage ? (
+              <section className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
+                Live feed is temporarily unavailable. Showing fallback data. Reason: {errorMessage}
+              </section>
+            ) : null}
 
-        <PriceChartPanel snapshot={snapshot} />
+            <PriceChartPanel snapshot={snapshot} isHistoricalCycleLoading={isHistoricalCycleLoading} />
 
-        <details className="rounded-xl border border-zinc-900 bg-zinc-950/75 p-4 sm:p-5">
-          <summary className="cursor-pointer text-xs font-medium uppercase tracking-wide text-zinc-400">
-            Historical Comparison Table
-          </summary>
-          <div className="mt-3">
-            <CycleComparisonTable />
-          </div>
-        </details>
+            <details className="rounded-xl border border-zinc-900 bg-zinc-950/75 p-4 sm:p-5">
+              <summary className="cursor-pointer text-xs font-medium uppercase tracking-wide text-zinc-400">
+                Historical Comparison Table
+              </summary>
+              <div className="mt-3">
+                <CycleComparisonTable />
+              </div>
+            </details>
+          </>
+        )}
       </div>
     </div>
   );

@@ -252,8 +252,8 @@ export function MethodologyPage() {
                               <td className="px-2 py-3">
                                 <span
                                   className={`rounded border px-2 py-0.5 text-[11px] uppercase ${row.status === "active"
-                                      ? "border-[#F7931A]/40 bg-[#F7931A]/10 text-[#F7931A]"
-                                      : "border-lime-500/35 bg-lime-500/10 text-lime-300"
+                                    ? "border-[#F7931A]/40 bg-[#F7931A]/10 text-[#F7931A]"
+                                    : "border-lime-500/35 bg-lime-500/10 text-lime-300"
                                     }`}
                                 >
                                   {row.status}
@@ -275,8 +275,8 @@ export function MethodologyPage() {
                             </div>
                             <span
                               className={`shrink-0 rounded border px-2 py-0.5 text-[11px] uppercase ${row.status === "active"
-                                  ? "border-[#F7931A]/40 bg-[#F7931A]/10 text-[#F7931A]"
-                                  : "border-lime-500/35 bg-lime-500/10 text-lime-300"
+                                ? "border-[#F7931A]/40 bg-[#F7931A]/10 text-[#F7931A]"
+                                : "border-lime-500/35 bg-lime-500/10 text-lime-300"
                                 }`}
                             >
                               {row.status}
@@ -309,8 +309,8 @@ export function MethodologyPage() {
             ))}
 
             {/* Disclaimer */}
-            <section className="rounded-xl border border-[#F7931A]/30 bg-[#F7931A]/10 p-4">
-              <p className="text-xs uppercase tracking-wide text-[#F7931A]">Research Disclaimer</p>
+            <section className="rounded-xl border border-[#F7931A]/30 bg-[#F7931A]/10 p-4 mt-4">
+              <p className="text-xs uppercase tracking-wide text-[#F7931A]">Disclaimer</p>
               <p className="mt-2 text-sm leading-relaxed text-zinc-200">
                 FibraX is for educational and research purposes only. It is not financial advice, not an investment
                 recommendation, and not a guarantee of future market behavior.

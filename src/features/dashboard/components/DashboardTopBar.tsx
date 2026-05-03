@@ -26,6 +26,8 @@ interface DashboardTopBarProps {
   lastUpdated: string;
   dataSource: "realtime" | "historical" | "assumption" | "fallback";
   isRefreshing: boolean;
+  isHistoricalCycleLoading: boolean;
+  isCurrentCyclePageLoading: boolean;
 }
 
 function formatPrice(value: number): string {
@@ -83,7 +85,19 @@ export function DashboardTopBar({
   lastUpdated,
   dataSource,
   isRefreshing,
+  isHistoricalCycleLoading,
+  isCurrentCyclePageLoading,
 }: DashboardTopBarProps) {
+  const isCycleLoadInProgress = isHistoricalCycleLoading || isCurrentCyclePageLoading;
+
+  const statusText = isCycleLoadInProgress
+    ? "Loading cycle data"
+    : mode === "realtime"
+      ? `Updated ${formatTimestamp(lastUpdated)}${isRefreshing ? " (refreshing...)" : ""}`
+      : mode === "historical"
+        ? "Historical cycle selected. Live polling is paused."
+        : "Future assumption selected. Live polling is paused.";
+
   return (
     <header className="rounded-xl border border-zinc-900 bg-zinc-950/75 p-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -112,7 +126,7 @@ export function DashboardTopBar({
       <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <div className="flex min-w-0 items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1">
           <span className="shrink-0 text-xs text-zinc-500">Cycle</span>
-          <Select value={selectedCycleId} onValueChange={onCycleChange}>
+          <Select value={selectedCycleId} onValueChange={onCycleChange} disabled={isCycleLoadInProgress}>
             <SelectTrigger className="h-auto w-full min-w-0 border-0 bg-transparent p-0 text-xs shadow-none hover:border-0 focus-visible:ring-0">
               <SelectValue placeholder="Select cycle" />
             </SelectTrigger>
@@ -132,10 +146,13 @@ export function DashboardTopBar({
               key={frame.value}
               type="button"
               onClick={() => onIntervalChange(frame.value)}
+              disabled={isCycleLoadInProgress}
               className={`rounded-md border px-2.5 py-1 text-xs transition-colors ${
-                frame.value === interval
-                  ? "border-[#F7931A]/45 bg-[#F7931A]/14 text-[#F7931A]"
-                  : "border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700"
+                isCycleLoadInProgress
+                  ? "cursor-not-allowed border-zinc-800 bg-zinc-900 text-zinc-500"
+                  : frame.value === interval
+                    ? "border-[#F7931A]/45 bg-[#F7931A]/14 text-[#F7931A]"
+                    : "border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700"
               }`}
             >
               {frame.label}
@@ -144,13 +161,7 @@ export function DashboardTopBar({
         </div>
       </div>
 
-      <p className="mt-3 text-[11px] text-zinc-500">
-        {mode === "realtime"
-          ? `Updated ${formatTimestamp(lastUpdated)}${isRefreshing ? " (refreshing...)" : ""}`
-          : mode === "historical"
-            ? "Historical cycle selected. Live polling is paused."
-            : "Future assumption selected. Live polling is paused."}
-      </p>
+      <p className="mt-3 text-[11px] text-zinc-500">{statusText}</p>
     </header>
   );
 }
