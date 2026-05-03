@@ -7,7 +7,7 @@ const navLinks = [
   { href: "/about", label: "About" },
 ];
 
-export function SiteTopNav() {
+export function Navbar() {
   return (
     <header className="border-b border-zinc-900/80 bg-black/80 backdrop-blur">
       <div className="fx-container flex items-center justify-between gap-4 py-4">
