@@ -6,6 +6,14 @@ export interface MethodologySectionItem {
   bullets: string[];
 }
 
+export interface MethodologyVisualStep {
+  id: string;
+  title: string;
+  imageSrc: string;
+  caption: string;
+  highlights: string[];
+}
+
 export const methodologySections: MethodologySectionItem[] = [
   {
     id: "model-measures",
@@ -79,4 +87,79 @@ export const methodologyResults = [
   { cycle: "2015-2017", projectedBand: "$4,768", actualTop: "$3,122", deviation: "-34.27%" },
   { cycle: "2018-2021", projectedBand: "$18,678", actualTop: "$15,479", deviation: "-17.10%" },
   { cycle: "2022-2025", projectedBand: "$41,604", actualTop: "$38,966 (assumed)", deviation: "-6.38% (base case)" },
+];
+
+export const methodologyVisualSteps: MethodologyVisualStep[] = [
+  {
+    id: "visual-overview",
+    title: "Cycle Overview with Halving Markers",
+    imageSrc: "/methodology/halving-and-price-ranges.png",
+    caption:
+      "High-level view of Bitcoin cycle structure with halving dates and measured bull ranges used as primary research anchors.",
+    highlights: [
+      "Vertical halving markers separate cycle regimes.",
+      "Green range blocks capture cycle-level expansion magnitude.",
+      "These ranges are the base input for ratio comparison logic.",
+    ],
+  },
+  {
+    id: "visual-cycle-1",
+    title: "1st Cycle Bear Mapping (2011-2013)",
+    imageSrc: "/methodology/1st-halving.png",
+    caption:
+      "Fib retracement is drawn from cycle ATH to prior cycle low, then Fib 0.236 is used as the bear-start reference and compared to realized low.",
+    highlights: [
+      "Anchor pair: $1,163 high and $2 low.",
+      "Fib 0.236 reference marks bear start zone.",
+      "Drawdown from Fib 0.236 to realized low is tracked.",
+    ],
+  },
+  {
+    id: "visual-cycle-2",
+    title: "2nd Cycle Bear Mapping (2015-2017)",
+    imageSrc: "/methodology/2nd-halving.png",
+    caption:
+      "Same rule set is repeated to keep methodology deterministic and comparable across cycles.",
+    highlights: [
+      "Anchor pair: $19,666 high and $152 low.",
+      "Fib 0.236 becomes the bear-start baseline.",
+      "Observed drawdown is logged for historical drift analysis.",
+    ],
+  },
+  {
+    id: "visual-cycle-3",
+    title: "3rd Cycle Bear Mapping (2018-2021)",
+    imageSrc: "/methodology/3rd-halving.png",
+    caption:
+      "The third cycle validates the same Fib process and provides the latest completed bear drawdown reference before current-cycle assumptions.",
+    highlights: [
+      "Anchor pair: $69,000 high and $3,122 low.",
+      "Fib 0.236 level is measured against realized low at $15,479.",
+      "Result contributes to the base-case bear hypothesis.",
+    ],
+  },
+  {
+    id: "visual-cycle-4",
+    title: "4th Cycle Base-Case Bear Scenario",
+    imageSrc: "/methodology/4th-halving.png",
+    caption:
+      "Current-cycle bear mapping applies the fixed base-case drawdown hypothesis from Fib 0.236 because the full cycle is still in progress.",
+    highlights: [
+      "Anchor pair: $126,272 high and $15,479 prior low.",
+      "Fib 0.236 defines the bear-start reference around $41k.",
+      "Base-case drawdown assumption: -6.38%.",
+    ],
+  },
+  {
+    id: "visual-bull-ratios",
+    title: "Bull Ratio Range and Projection Bands",
+    imageSrc: "/methodology/5th-halving-bull-price-ranges.png",
+    caption:
+      "Historical bull-return compression is converted into scenario bands, then projected from the latest ATH to build conservative, median, and extension zones.",
+    highlights: [
+      "Ratio compression references: 3.02, 4.85, and 6.34.",
+      "Scenario bands are applied as percentage expansions from cycle ATH.",
+      "Outputs are interpreted as zones, not guaranteed targets.",
+    ],
+  },
 ];

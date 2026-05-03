@@ -22,7 +22,7 @@ import type {
 const FIB_LEVEL = 0.236;
 const HALVING_CADENCE_YEARS = 4;
 const LAST_HALVING_YEAR = 2140;
-const MEDIAN_RATIO_PCT = bullRatioLevels[1].ratioPct;
+const EXTENSION_RATIO_PCT = bullRatioLevels[2].ratioPct;
 
 interface CycleChainNode {
   descriptor: CycleDescriptor;
@@ -128,7 +128,7 @@ function buildCycleChain(lastHalvingYear: number = LAST_HALVING_YEAR): CycleChai
     halvingYear += HALVING_CADENCE_YEARS
   ) {
     const previousLow = previousNode.projections.bear.projectedLow;
-    const ath = previousNode.anchor.ath * (1 + MEDIAN_RATIO_PCT / 100);
+    const ath = previousNode.anchor.ath * (1 + EXTENSION_RATIO_PCT / 100);
 
     const futureAnchor: CycleAnchor = {
       cycleId: `Cycle ${halvingYear}-${halvingYear + 3} (Assumed)`,
@@ -272,7 +272,7 @@ function getAssumptionMessages(mode: "realtime" | "assumption"): string[] {
     return [
       "Selected cycle is rendered in assumption mode using deterministic synthetic candles.",
       "Bear low estimate uses Fib 0.236 and a fixed -6.38% drawdown assumption.",
-      "Future cycle chaining uses the +48.50% median bull path as the canonical connector.",
+      "Future cycle chaining uses the +63.40% extension bull path as the canonical connector.",
       "Bull projection levels remain scenario zones at +30.20%, +48.50%, and +63.40% from cycle ATH.",
     ];
   }

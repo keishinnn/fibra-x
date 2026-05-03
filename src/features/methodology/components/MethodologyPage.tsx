@@ -1,4 +1,9 @@
-import { methodologyResults, methodologySections } from "@/features/methodology/data/methodology-data";
+import Image from "next/image";
+import {
+  methodologyResults,
+  methodologySections,
+  methodologyVisualSteps,
+} from "@/features/methodology/data/methodology-data";
 
 export function MethodologyPage() {
   return (
@@ -19,6 +24,13 @@ export function MethodologyPage() {
           <aside className="h-fit rounded-xl border border-zinc-900 bg-zinc-950/70 p-4 xl:sticky xl:top-6">
             <p className="text-xs uppercase tracking-wide text-zinc-500">Section Index</p>
             <nav className="mt-3 space-y-2">
+              <a
+                href="#visual-walkthrough"
+                className="flex items-center justify-between rounded-md border border-zinc-900 bg-black/40 px-2.5 py-2 text-sm text-zinc-300 transition-colors hover:border-zinc-700 hover:text-zinc-100"
+              >
+                <span>Visual Walkthrough</span>
+                <span className="text-xs text-zinc-500">00</span>
+              </a>
               {methodologySections.map((section) => (
                 <a
                   key={section.id}
@@ -33,6 +45,41 @@ export function MethodologyPage() {
           </aside>
 
           <div className="space-y-4">
+            <section id="visual-walkthrough" className="rounded-xl border border-zinc-900 bg-zinc-950/70 p-5 sm:p-6">
+              <div className="flex items-center gap-2">
+                <span className="rounded border border-zinc-800 px-2 py-0.5 text-xs text-zinc-500">00</span>
+                <h2 className="text-lg font-semibold tracking-tight text-zinc-100 sm:text-xl">Visual Method Walkthrough</h2>
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-zinc-400 sm:text-base">
+                The following TradingView snapshots document the exact manual process used to derive Fib bear levels and
+                cycle bull-ratio scenarios in this project.
+              </p>
+
+              <div className="mt-4 space-y-4">
+                {methodologyVisualSteps.map((step) => (
+                  <article key={step.id} className="overflow-hidden rounded-lg border border-zinc-900 bg-black/45">
+                    <div className="relative aspect-[16/9] w-full border-b border-zinc-900 bg-black">
+                      <Image src={step.imageSrc} alt={step.title} fill sizes="(max-width: 1280px) 100vw, 900px" className="object-contain" />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-sm font-medium text-zinc-100 sm:text-base">{step.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-zinc-400">{step.caption}</p>
+                      <ul className="mt-3 space-y-2">
+                        {step.highlights.map((highlight) => (
+                          <li
+                            key={highlight}
+                            className="rounded-md border border-zinc-900 bg-zinc-950/70 px-3 py-2 text-xs leading-relaxed text-zinc-300"
+                          >
+                            {highlight}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+
             {methodologySections.map((section) => (
               <section key={section.id} id={section.id} className="rounded-xl border border-zinc-900 bg-zinc-950/70 p-5 sm:p-6">
                 <div className="flex items-center gap-2">
