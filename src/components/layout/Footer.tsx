@@ -20,7 +20,7 @@ export function Footer() {
                         </Link>
                     </div>
 
-                    <p className="text-xs text-zinc-500">(c) 2026 FibraX. Built by Tenshin.</p>
+                    <p className="text-xs text-zinc-500">&copy; 2026 FibraX. Built by Tenshin.</p>
                 </div>
             </div>
         </footer>

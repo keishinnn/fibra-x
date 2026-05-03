@@ -31,11 +31,11 @@ function buildChartLevels(snapshot: DashboardSnapshot): ChartLevelLine[] {
   const showBullLevels = snapshot.mode !== "historical";
   const bullLevels = showBullLevels
     ? snapshot.projections.bull.map((zone) => ({
-        label: zone.label,
-        price: zone.projectedPrice,
-        color: "#84cc16",
-        lineStyle: LineStyle.Dashed,
-      }))
+      label: zone.label,
+      price: zone.projectedPrice,
+      color: "#84cc16",
+      lineStyle: LineStyle.Dashed,
+    }))
     : [];
 
   const bearScenarioLevels = snapshot.projections.bear.scenarios.map((scenario) => ({
@@ -175,9 +175,14 @@ export function PriceChartPanel({ snapshot }: PriceChartPanelProps) {
           </div>
         </details>
 
-        <p className="mt-3 text-xs leading-relaxed text-zinc-400">
-          {snapshot.disclaimer} Treat all levels as scenarios, not guaranteed outcomes.
-        </p>
+        {/* Disclaimer */}
+        <section className="rounded-xl border border-[#F7931A]/30 bg-[#F7931A]/10 p-4 mt-3">
+          <p className="text-xs uppercase tracking-wide text-[#F7931A]">Research Disclaimer</p>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-200">
+            FibraX is for educational and research purposes only. It is not financial advice, not an investment
+            recommendation, and not a guarantee of future market behavior.
+          </p>
+        </section>
       </div>
     </section>
   );
