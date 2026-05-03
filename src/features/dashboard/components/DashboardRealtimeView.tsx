@@ -20,7 +20,7 @@ export function DashboardRealtimeView() {
 
   return (
     <div className="min-h-full bg-black text-zinc-100">
-      <div className="mx-auto w-full max-w-[1440px] space-y-4 px-4 py-5 sm:px-6 sm:py-6">
+      <div className="mx-auto w-full max-w-[1440px] space-y-4 px-3 py-4 sm:px-6 sm:py-6">
         <DashboardTopBar
           interval={interval}
           onIntervalChange={setInterval}
@@ -35,28 +35,22 @@ export function DashboardRealtimeView() {
           isRefreshing={isLoading}
         />
 
-        {snapshot.mode === "assumption" ? (
-          <section className="rounded-xl border border-[#F7931A]/40 bg-[#F7931A]/10 p-3 text-sm text-zinc-200">
-            Assumption mode is active for <strong>{snapshot.selectedCycle.label}</strong>. Realtime market values are
-            intentionally disabled for non-current cycles.
-          </section>
-        ) : null}
-
-        {snapshot.mode === "historical" ? (
-          <section className="rounded-xl border border-sky-500/35 bg-sky-500/10 p-3 text-sm text-zinc-200">
-            Historical mode is active for <strong>{snapshot.selectedCycle.label}</strong>. Candles are loaded from the
-            cycle window and live polling is disabled.
-          </section>
-        ) : null}
-
         {isStale && errorMessage ? (
           <section className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
-            Live feed is temporarily unavailable. Showing latest fallback snapshot. Reason: {errorMessage}
+            Live feed is temporarily unavailable. Showing fallback data. Reason: {errorMessage}
           </section>
         ) : null}
 
         <PriceChartPanel snapshot={snapshot} />
-        <CycleComparisonTable />
+
+        <details className="rounded-xl border border-zinc-900 bg-zinc-950/75 p-4 sm:p-5">
+          <summary className="cursor-pointer text-xs font-medium uppercase tracking-wide text-zinc-400">
+            Historical Comparison Table
+          </summary>
+          <div className="mt-3">
+            <CycleComparisonTable />
+          </div>
+        </details>
       </div>
     </div>
   );
