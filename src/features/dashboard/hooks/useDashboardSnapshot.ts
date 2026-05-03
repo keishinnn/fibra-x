@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { getCurrentCycleId } from "@/features/cycle-model/lib/calculate-cycle-projections";
 import { dashboardFallbackSnapshot } from "@/features/dashboard/data/dashboard-fallback-data";
 import type { DashboardSnapshot } from "@/features/cycle-model/types/cycle-model.types";
 import type { MarketInterval } from "@/features/market-data/types/market-data.types";
@@ -16,24 +17,28 @@ const intervalLimit: Record<MarketInterval, number> = {
 interface UseDashboardSnapshotResult {
   interval: MarketInterval;
   setInterval: (next: MarketInterval) => void;
+  selectedCycleId: string;
+  setSelectedCycleId: (next: string) => void;
   snapshot: DashboardSnapshot;
   isLoading: boolean;
   isStale: boolean;
   errorMessage: string | null;
-  dataSource: "realtime" | "fallback";
+  dataSource: "realtime" | "assumption" | "fallback";
 }
 
 export function useDashboardSnapshot(): UseDashboardSnapshotResult {
+  const defaultCycleId = getCurrentCycleId();
   const [interval, setInterval] = useState<MarketInterval>("1w");
+  const [selectedCycleId, setSelectedCycleId] = useState<string>(defaultCycleId);
   const [snapshot, setSnapshot] = useState<DashboardSnapshot>(dashboardFallbackSnapshot);
   const [isLoading, setIsLoading] = useState(true);
   const [isStale, setIsStale] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [dataSource, setDataSource] = useState<"realtime" | "fallback">("fallback");
+  const [dataSource, setDataSource] = useState<"realtime" | "assumption" | "fallback">("fallback");
 
-  const fetchSnapshot = useCallback(async (targetInterval: MarketInterval) => {
+  const fetchSnapshot = useCallback(async (targetInterval: MarketInterval, cycleId: string) => {
     const limit = intervalLimit[targetInterval];
-    const response = await fetch(`/api/market/btc?interval=${targetInterval}&limit=${limit}`, {
+    const response = await fetch(`/api/market/btc?interval=${targetInterval}&limit=${limit}&cycleId=${cycleId}`, {
       method: "GET",
       cache: "no-store",
     });
@@ -44,9 +49,10 @@ export function useDashboardSnapshot(): UseDashboardSnapshotResult {
 
     const payload = (await response.json()) as DashboardSnapshot;
     setSnapshot(payload);
-    setDataSource("realtime");
+    setDataSource(payload.isRealtime ? "realtime" : "assumption");
     setIsStale(false);
     setErrorMessage(null);
+    return payload;
   }, []);
 
   useEffect(() => {
@@ -54,11 +60,14 @@ export function useDashboardSnapshot(): UseDashboardSnapshotResult {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     const run = async () => {
+      let shouldPoll = false;
+
       try {
         if (isMounted) {
           setIsLoading(true);
         }
-        await fetchSnapshot(interval);
+        const payload = await fetchSnapshot(interval, selectedCycleId);
+        shouldPoll = payload.isRealtime;
       } catch (error) {
         if (isMounted) {
           setIsStale(true);
@@ -68,9 +77,12 @@ export function useDashboardSnapshot(): UseDashboardSnapshotResult {
       } finally {
         if (isMounted) {
           setIsLoading(false);
-          timeoutId = setTimeout(async () => {
-            await run();
-          }, POLL_INTERVAL_MS);
+
+          if (shouldPoll) {
+            timeoutId = setTimeout(async () => {
+              await run();
+            }, POLL_INTERVAL_MS);
+          }
         }
       }
     };
@@ -83,11 +95,13 @@ export function useDashboardSnapshot(): UseDashboardSnapshotResult {
         clearTimeout(timeoutId);
       }
     };
-  }, [fetchSnapshot, interval]);
+  }, [fetchSnapshot, interval, selectedCycleId]);
 
   return {
     interval,
     setInterval,
+    selectedCycleId,
+    setSelectedCycleId,
     snapshot,
     isLoading,
     isStale,

@@ -1,4 +1,5 @@
 import type { MarketInterval } from "@/features/market-data/types/market-data.types";
+import type { CycleCatalog, CycleMode } from "@/features/cycle-model/types/cycle-model.types";
 
 const timeframeOptions: Array<{ label: string; value: MarketInterval }> = [
   { label: "1D", value: "1d" },
@@ -11,9 +12,14 @@ const modelOptions = ["Bull/Bear Levels", "Cycle Phase", "Fib Zones"];
 interface DashboardTopBarProps {
   interval: MarketInterval;
   onIntervalChange: (next: MarketInterval) => void;
+  selectedCycleId: string;
+  selectedCycleLabel: string;
+  cycleCatalog: CycleCatalog;
+  onCycleChange: (next: string) => void;
+  mode: CycleMode;
   currentPrice: number;
   lastUpdated: string;
-  dataSource: "realtime" | "fallback";
+  dataSource: "realtime" | "assumption" | "fallback";
   isRefreshing: boolean;
 }
 
@@ -38,6 +44,11 @@ function formatTimestamp(value: string): string {
 export function DashboardTopBar({
   interval,
   onIntervalChange,
+  selectedCycleId,
+  selectedCycleLabel,
+  cycleCatalog,
+  onCycleChange,
+  mode,
   currentPrice,
   lastUpdated,
   dataSource,
@@ -56,19 +67,45 @@ export function DashboardTopBar({
             className={`rounded-md border px-2 py-0.5 text-xs ${
               dataSource === "realtime"
                 ? "border-lime-500/40 bg-lime-500/10 text-lime-300"
+                : dataSource === "assumption"
+                  ? "border-[#F7931A]/40 bg-[#F7931A]/10 text-[#F7931A]"
                 : "border-zinc-700 bg-zinc-900 text-zinc-300"
             }`}
           >
-            {dataSource === "realtime" ? "Realtime Feed" : "Fallback Snapshot"}
+            {dataSource === "realtime"
+              ? "Realtime Feed"
+              : dataSource === "assumption"
+                ? "Assumption Mode"
+                : "Fallback Snapshot"}
           </span>
 
-          <span className="rounded-md border border-zinc-800 bg-zinc-900/70 px-2 py-0.5 text-xs text-zinc-400">
-            BTC {formatPrice(currentPrice)}
-          </span>
+          {mode === "realtime" ? (
+            <span className="rounded-md border border-zinc-800 bg-zinc-900/70 px-2 py-0.5 text-xs text-zinc-400">
+              BTC {formatPrice(currentPrice)}
+            </span>
+          ) : (
+            <span className="rounded-md border border-zinc-800 bg-zinc-900/70 px-2 py-0.5 text-xs text-zinc-400">
+              {selectedCycleLabel}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="rounded-md border border-zinc-700 bg-black px-2.5 py-1 text-zinc-300">BTC/USD</span>
+          <label className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-zinc-300">
+            <span className="mr-1 text-zinc-500">Cycle</span>
+            <select
+              value={selectedCycleId}
+              onChange={(event) => onCycleChange(event.target.value)}
+              className="bg-transparent text-zinc-200 outline-none"
+            >
+              {cycleCatalog.map((cycle) => (
+                <option key={cycle.id} value={cycle.id} className="bg-zinc-950 text-zinc-100">
+                  {cycle.label} ({cycle.kind})
+                </option>
+              ))}
+            </select>
+          </label>
           {timeframeOptions.map((frame) => (
             <button
               key={frame.value}
@@ -98,9 +135,15 @@ export function DashboardTopBar({
               {model}
             </span>
           ))}
-          <span className="rounded-md border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-zinc-400">
-            Updated {formatTimestamp(lastUpdated)} {isRefreshing ? "(refreshing...)" : ""}
-          </span>
+          {mode === "realtime" ? (
+            <span className="rounded-md border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-zinc-400">
+              Updated {formatTimestamp(lastUpdated)} {isRefreshing ? "(refreshing...)" : ""}
+            </span>
+          ) : (
+            <span className="rounded-md border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-zinc-400">
+              Assumption cycle · no realtime feed
+            </span>
+          )}
         </div>
       </div>
     </header>

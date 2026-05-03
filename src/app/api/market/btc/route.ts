@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildDashboardSnapshot } from "@/features/cycle-model/lib/calculate-cycle-projections";
+import {
+  buildAssumptionDashboardSnapshot,
+  buildRealtimeDashboardSnapshot,
+  getCurrentCycleId,
+} from "@/features/cycle-model/lib/calculate-cycle-projections";
 import { getCoinbaseMarketPayload } from "@/features/market-data/lib/coinbase-market";
 import type { MarketInterval } from "@/features/market-data/types/market-data.types";
 
@@ -34,6 +38,19 @@ export async function GET(request: NextRequest) {
   try {
     const interval = parseInterval(request.nextUrl.searchParams.get("interval"));
     const limit = parseLimit(request.nextUrl.searchParams.get("limit"));
+    const cycleId = request.nextUrl.searchParams.get("cycleId");
+    const currentCycleId = getCurrentCycleId();
+
+    if (cycleId && cycleId !== currentCycleId) {
+      const assumptionSnapshot = buildAssumptionDashboardSnapshot({
+        cycleId,
+        interval,
+        limit,
+        symbol: "BTC-USD",
+      });
+
+      return NextResponse.json(assumptionSnapshot);
+    }
 
     const market = await getCoinbaseMarketPayload({
       symbol: "BTC-USD",
@@ -41,7 +58,10 @@ export async function GET(request: NextRequest) {
       limit,
     });
 
-    const snapshot = buildDashboardSnapshot(market);
+    const snapshot = buildRealtimeDashboardSnapshot({
+      market,
+      cycleId,
+    });
     return NextResponse.json(snapshot);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected market data failure.";
@@ -54,4 +74,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

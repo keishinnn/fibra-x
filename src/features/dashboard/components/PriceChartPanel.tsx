@@ -59,7 +59,12 @@ export function PriceChartPanel({ snapshot }: PriceChartPanelProps) {
   return (
     <section className="rounded-xl border border-zinc-900 bg-zinc-950/75 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-sm font-medium text-zinc-200">Bull/Bear Market Map</h2>
+        <div>
+          <h2 className="text-sm font-medium text-zinc-200">Bull/Bear Market Map</h2>
+          <p className="text-[11px] text-zinc-500">
+            {snapshot.selectedCycle.label} · Halving {snapshot.selectedCycle.halvingDate} · {snapshot.mode}
+          </p>
+        </div>
         <div className="flex flex-wrap gap-1.5">
           {chartLegend.map((legend) => (
             <span
@@ -79,7 +84,7 @@ export function PriceChartPanel({ snapshot }: PriceChartPanelProps) {
             <InteractiveMarketChart
               candles={snapshot.market.candles}
               levels={chartLevels}
-              intervalKey={snapshot.market.interval}
+              intervalKey={`${snapshot.market.interval}-${snapshot.selectedCycle.id}`}
             />
           </div>
 
