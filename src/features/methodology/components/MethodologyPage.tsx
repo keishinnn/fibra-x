@@ -1,5 +1,6 @@
 import Image from "next/image";
 import {
+  methodologyCycleTimeline,
   methodologyResults,
   methodologySections,
   methodologyVisualSteps,
@@ -114,6 +115,47 @@ export function MethodologyPage() {
                             <td className="px-2 py-3 text-zinc-300">{row.projectedBand}</td>
                             <td className="px-2 py-3 text-zinc-300">{row.actualTop}</td>
                             <td className="px-2 py-3 text-zinc-200">{row.deviation}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : null}
+
+                {section.id === "bottom-top-selection" ? (
+                  <div className="mt-4 overflow-x-auto rounded-md border border-zinc-900 bg-black/45 p-2">
+                    <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-zinc-900 text-[11px] uppercase tracking-wide text-zinc-500">
+                          <th className="px-2 py-2 font-medium">Cycle</th>
+                          <th className="px-2 py-2 font-medium">Range</th>
+                          <th className="px-2 py-2 font-medium">Bottom</th>
+                          <th className="px-2 py-2 font-medium">Halving</th>
+                          <th className="px-2 py-2 font-medium">Peak</th>
+                          <th className="px-2 py-2 font-medium">Bear Bottom</th>
+                          <th className="px-2 py-2 font-medium">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {methodologyCycleTimeline.map((row) => (
+                          <tr key={row.id} className="border-b border-zinc-900/70">
+                            <td className="px-2 py-3 text-zinc-200">{row.label}</td>
+                            <td className="px-2 py-3 text-zinc-300">{row.range}</td>
+                            <td className="px-2 py-3 text-zinc-300">{row.bottomDate}</td>
+                            <td className="px-2 py-3 text-zinc-300">{row.halvingDate}</td>
+                            <td className="px-2 py-3 text-zinc-300">{row.peakDate}</td>
+                            <td className="px-2 py-3 text-zinc-300">{row.bearBottomDate}</td>
+                            <td className="px-2 py-3">
+                              <span
+                                className={`rounded border px-2 py-0.5 text-[11px] uppercase ${
+                                  row.status === "active"
+                                    ? "border-[#F7931A]/40 bg-[#F7931A]/10 text-[#F7931A]"
+                                    : "border-lime-500/35 bg-lime-500/10 text-lime-300"
+                                }`}
+                              >
+                                {row.status}
+                              </span>
+                            </td>
                           </tr>
                         ))}
                       </tbody>

@@ -2,7 +2,7 @@ import type { MarketPayload } from "@/features/market-data/types/market-data.typ
 import type { MarketInterval } from "@/features/market-data/types/market-data.types";
 
 export type CycleKind = "historical" | "current" | "future";
-export type CycleMode = "realtime" | "assumption";
+export type CycleMode = "realtime" | "historical" | "assumption";
 
 export interface CycleDescriptor {
   id: string;
@@ -16,6 +16,8 @@ export type CycleCatalog = CycleDescriptor[];
 export interface CycleAnchor {
   cycleId: string;
   halvingDate: string;
+  startDate?: string | null;
+  endDate?: string | null;
   previousLow: number;
   ath: number;
   fib236?: number;
@@ -24,10 +26,17 @@ export interface CycleAnchor {
 }
 
 export interface BearProjection {
+  scenarios: Array<{
+    id: "shallow" | "base" | "stress";
+    label: string;
+    drawdownPct: number;
+    projectedLow: number;
+  }>;
   fib236: number;
   drawdownPct: number;
   projectedLow: number;
   rangeLabel: string;
+  scenarioRangeLabel: string;
 }
 
 export interface BullProjection {

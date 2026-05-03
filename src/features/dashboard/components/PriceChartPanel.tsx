@@ -13,7 +13,7 @@ const chartLegend = [
   { label: "Bull Lead Path", color: "#f59e0b" },
   { label: "Bull Levels", color: "#84cc16" },
   { label: "ATH Reference", color: "#F7931A" },
-  { label: "Bear Levels", color: "#fb7185" },
+  { label: "Bear Scenarios", color: "#fb7185" },
 ];
 
 function formatUsd(value: number): string {
@@ -25,11 +25,20 @@ function formatUsd(value: number): string {
 }
 
 function buildChartLevels(snapshot: DashboardSnapshot): ChartLevelLine[] {
-  const bullLevels = snapshot.projections.bull.map((zone) => ({
-    label: zone.label,
-    price: zone.projectedPrice,
-    color: "#84cc16",
-    lineStyle: LineStyle.Dashed,
+  const bullLevels =
+    snapshot.mode === "historical"
+      ? []
+      : snapshot.projections.bull.map((zone) => ({
+          label: zone.label,
+          price: zone.projectedPrice,
+          color: "#84cc16",
+          lineStyle: LineStyle.Dashed,
+        }));
+  const bearScenarioLevels = snapshot.projections.bear.scenarios.map((scenario) => ({
+    label: `${scenario.label} (${scenario.drawdownPct}%)`,
+    price: scenario.projectedLow,
+    color: scenario.id === "base" ? "#fda4af" : scenario.id === "shallow" ? "#fecdd3" : "#fb7185",
+    lineStyle: scenario.id === "base" ? LineStyle.Dotted : LineStyle.Dashed,
   }));
 
   return [
@@ -46,17 +55,21 @@ function buildChartLevels(snapshot: DashboardSnapshot): ChartLevelLine[] {
       color: "#fb7185",
       lineStyle: LineStyle.Dashed,
     },
-    {
-      label: "Projected Bear Low (-6.38%)",
-      price: snapshot.projections.bear.projectedLow,
-      color: "#fda4af",
-      lineStyle: LineStyle.Dotted,
-    },
+    ...bearScenarioLevels,
   ];
+}
+
+function buildChartLegend(snapshot: DashboardSnapshot): Array<{ label: string; color: string }> {
+  if (snapshot.mode === "historical") {
+    return chartLegend.filter((item) => item.label !== "Bull Levels" && item.label !== "Bull Lead Path");
+  }
+
+  return chartLegend;
 }
 
 export function PriceChartPanel({ snapshot }: PriceChartPanelProps) {
   const chartLevels = buildChartLevels(snapshot);
+  const visibleLegend = buildChartLegend(snapshot);
 
   return (
     <section className="rounded-xl border border-zinc-900 bg-zinc-950/75 p-4 sm:p-5">
@@ -68,7 +81,7 @@ export function PriceChartPanel({ snapshot }: PriceChartPanelProps) {
           </p>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {chartLegend.map((legend) => (
+          {visibleLegend.map((legend) => (
             <span
               key={legend.label}
               className="inline-flex items-center gap-1 rounded-md border border-zinc-800 bg-black/55 px-2 py-0.5 text-[10px] text-zinc-400"
@@ -131,15 +144,26 @@ export function PriceChartPanel({ snapshot }: PriceChartPanelProps) {
             <p className="mt-1 text-sm font-medium text-zinc-200">{formatUsd(snapshot.projections.bear.fib236)}</p>
           </article>
           <article className="rounded-md border border-zinc-900 bg-zinc-950/80 px-3 py-2.5">
-            <p className="text-[11px] uppercase tracking-wide text-zinc-500">Projected Bear Low</p>
+            <p className="text-[11px] uppercase tracking-wide text-zinc-500">Projected Bear Low (Base)</p>
             <p className="mt-1 text-sm font-medium text-zinc-200">
               {formatUsd(snapshot.projections.bear.projectedLow)} ({snapshot.projections.bear.drawdownPct}%)
             </p>
           </article>
           <article className="rounded-md border border-zinc-900 bg-zinc-950/80 px-3 py-2.5">
-            <p className="text-[11px] uppercase tracking-wide text-zinc-500">Bear Range Scenario</p>
-            <p className="mt-1 text-sm font-medium text-zinc-200">{snapshot.projections.bear.rangeLabel}</p>
+            <p className="text-[11px] uppercase tracking-wide text-zinc-500">Bear Scenario Band</p>
+            <p className="mt-1 text-sm font-medium text-zinc-200">{snapshot.projections.bear.scenarioRangeLabel}</p>
           </article>
+        </div>
+
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
+          {snapshot.projections.bear.scenarios.map((scenario) => (
+            <article key={scenario.id} className="rounded-md border border-zinc-900 bg-zinc-950/80 px-3 py-2.5">
+              <p className="text-[11px] uppercase tracking-wide text-zinc-500">{scenario.label}</p>
+              <p className="mt-1 text-sm font-medium text-zinc-200">
+                {formatUsd(scenario.projectedLow)} ({scenario.drawdownPct}%)
+              </p>
+            </article>
+          ))}
         </div>
 
         <div className="mt-3 rounded-md border border-[#F7931A]/30 bg-[#F7931A]/10 p-3">

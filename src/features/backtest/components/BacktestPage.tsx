@@ -115,6 +115,7 @@ export function BacktestPage() {
                     <p>Deviation: {deviation >= 0 ? "+" : ""}{deviation.toFixed(1)}%</p>
                     <p>Cycle low: {formatUsd(testCase.cycleLow)}</p>
                     <p>Bear drawdown: {testCase.bearDrawdownPct}%</p>
+                    <p className="sm:col-span-2">Bear scenario band: {testCase.bearScenarioBand}</p>
                   </div>
                   <p className="mt-3 text-xs leading-relaxed text-zinc-400">{testCase.note}</p>
                 </article>
@@ -132,6 +133,7 @@ export function BacktestPage() {
                 <th className="px-2 py-2 font-medium">Actual Top</th>
                 <th className="px-2 py-2 font-medium">Deviation</th>
                 <th className="px-2 py-2 font-medium">Bear Drawdown</th>
+                <th className="px-2 py-2 font-medium">Bear Scenario Band</th>
                 <th className="px-2 py-2 font-medium">Status</th>
               </tr>
             </thead>
@@ -149,6 +151,7 @@ export function BacktestPage() {
                     <td className="px-2 py-3 text-zinc-300">{formatUsd(testCase.actualTop)}</td>
                     <td className="px-2 py-3 text-zinc-200">{deviation >= 0 ? "+" : ""}{deviation.toFixed(1)}%</td>
                     <td className="px-2 py-3 text-zinc-300">{testCase.bearDrawdownPct}%</td>
+                    <td className="px-2 py-3 text-zinc-300">{testCase.bearScenarioBand}</td>
                     <td className="px-2 py-3">
                       <span className={`rounded border px-2 py-0.5 text-[11px] uppercase ${statusClass[status]}`}>
                         {status}
@@ -165,7 +168,8 @@ export function BacktestPage() {
           <p className="text-xs uppercase tracking-wide text-[#F7931A]">Interpretation Guardrails</p>
           <p className="mt-2 text-sm leading-relaxed text-zinc-200">
             Backtest alignment indicates historical fit, not future certainty. Treat projection bands as probabilistic
-            research zones, and always reassess when price structure breaks invalidation thresholds.
+            research zones, and always reassess when price structure breaks invalidation thresholds. Bear-side outputs
+            are shown as shallow/base/stress scenarios from a fixed Fib 0.236 anchor.
           </p>
         </section>
       </div>

@@ -42,6 +42,13 @@ export function DashboardRealtimeView() {
           </section>
         ) : null}
 
+        {snapshot.mode === "historical" ? (
+          <section className="rounded-xl border border-sky-500/35 bg-sky-500/10 p-3 text-sm text-zinc-200">
+            Historical mode is active for <strong>{snapshot.selectedCycle.label}</strong>. Candles are loaded from the
+            cycle window and live polling is disabled.
+          </section>
+        ) : null}
+
         {isStale && errorMessage ? (
           <section className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
             Live feed is temporarily unavailable. Showing latest fallback snapshot. Reason: {errorMessage}

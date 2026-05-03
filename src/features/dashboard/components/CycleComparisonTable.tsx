@@ -15,7 +15,7 @@ export function CycleComparisonTable() {
     <section className="rounded-xl border border-zinc-900 bg-zinc-950/75 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-xs uppercase tracking-wide text-zinc-500">Historical Cycle Comparison</h3>
-        <p className="text-xs text-zinc-500">Current similarity: closest to 2018-2021 structure</p>
+        <p className="text-xs text-zinc-500">Current similarity: closest to 2018-2022 structure</p>
       </div>
 
       <div className="mt-3 overflow-x-auto">
@@ -47,4 +47,3 @@ export function CycleComparisonTable() {
     </section>
   );
 }
-

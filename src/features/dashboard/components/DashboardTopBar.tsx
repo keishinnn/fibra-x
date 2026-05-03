@@ -1,5 +1,12 @@
-import type { MarketInterval } from "@/features/market-data/types/market-data.types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { CycleCatalog, CycleMode } from "@/features/cycle-model/types/cycle-model.types";
+import type { MarketInterval } from "@/features/market-data/types/market-data.types";
 
 const timeframeOptions: Array<{ label: string; value: MarketInterval }> = [
   { label: "1D", value: "1d" },
@@ -19,7 +26,7 @@ interface DashboardTopBarProps {
   mode: CycleMode;
   currentPrice: number;
   lastUpdated: string;
-  dataSource: "realtime" | "assumption" | "fallback";
+  dataSource: "realtime" | "historical" | "assumption" | "fallback";
   isRefreshing: boolean;
 }
 
@@ -67,6 +74,8 @@ export function DashboardTopBar({
             className={`rounded-md border px-2 py-0.5 text-xs ${
               dataSource === "realtime"
                 ? "border-lime-500/40 bg-lime-500/10 text-lime-300"
+                : dataSource === "historical"
+                  ? "border-sky-500/40 bg-sky-500/10 text-sky-300"
                 : dataSource === "assumption"
                   ? "border-[#F7931A]/40 bg-[#F7931A]/10 text-[#F7931A]"
                 : "border-zinc-700 bg-zinc-900 text-zinc-300"
@@ -74,6 +83,8 @@ export function DashboardTopBar({
           >
             {dataSource === "realtime"
               ? "Realtime Feed"
+              : dataSource === "historical"
+                ? "Historical Data"
               : dataSource === "assumption"
                 ? "Assumption Mode"
                 : "Fallback Snapshot"}
@@ -92,20 +103,21 @@ export function DashboardTopBar({
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="rounded-md border border-zinc-700 bg-black px-2.5 py-1 text-zinc-300">BTC/USD</span>
-          <label className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-zinc-300">
-            <span className="mr-1 text-zinc-500">Cycle</span>
-            <select
-              value={selectedCycleId}
-              onChange={(event) => onCycleChange(event.target.value)}
-              className="bg-transparent text-zinc-200 outline-none"
-            >
-              {cycleCatalog.map((cycle) => (
-                <option key={cycle.id} value={cycle.id} className="bg-zinc-950 text-zinc-100">
-                  {cycle.label} ({cycle.kind})
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="flex items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1">
+            <span className="text-zinc-500">Cycle</span>
+            <Select value={selectedCycleId} onValueChange={onCycleChange}>
+              <SelectTrigger className="h-auto w-[210px] border-0 bg-transparent p-0 text-xs shadow-none hover:border-0 focus-visible:ring-0">
+                <SelectValue placeholder="Select cycle" />
+              </SelectTrigger>
+              <SelectContent>
+                {cycleCatalog.map((cycle) => (
+                  <SelectItem key={cycle.id} value={cycle.id}>
+                    {cycle.label} ({cycle.kind})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           {timeframeOptions.map((frame) => (
             <button
               key={frame.value}
@@ -139,9 +151,13 @@ export function DashboardTopBar({
             <span className="rounded-md border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-zinc-400">
               Updated {formatTimestamp(lastUpdated)} {isRefreshing ? "(refreshing...)" : ""}
             </span>
+          ) : mode === "historical" ? (
+            <span className="rounded-md border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-zinc-400">
+              Historical candles - no live polling
+            </span>
           ) : (
             <span className="rounded-md border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-zinc-400">
-              Assumption cycle · no realtime feed
+              Assumption cycle - no realtime feed
             </span>
           )}
         </div>

@@ -23,7 +23,7 @@ interface UseDashboardSnapshotResult {
   isLoading: boolean;
   isStale: boolean;
   errorMessage: string | null;
-  dataSource: "realtime" | "assumption" | "fallback";
+  dataSource: "realtime" | "historical" | "assumption" | "fallback";
 }
 
 export function useDashboardSnapshot(): UseDashboardSnapshotResult {
@@ -34,7 +34,7 @@ export function useDashboardSnapshot(): UseDashboardSnapshotResult {
   const [isLoading, setIsLoading] = useState(true);
   const [isStale, setIsStale] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [dataSource, setDataSource] = useState<"realtime" | "assumption" | "fallback">("fallback");
+  const [dataSource, setDataSource] = useState<"realtime" | "historical" | "assumption" | "fallback">("fallback");
 
   const fetchSnapshot = useCallback(async (targetInterval: MarketInterval, cycleId: string) => {
     const limit = intervalLimit[targetInterval];
@@ -49,7 +49,13 @@ export function useDashboardSnapshot(): UseDashboardSnapshotResult {
 
     const payload = (await response.json()) as DashboardSnapshot;
     setSnapshot(payload);
-    setDataSource(payload.isRealtime ? "realtime" : "assumption");
+    if (payload.mode === "realtime") {
+      setDataSource("realtime");
+    } else if (payload.mode === "historical") {
+      setDataSource("historical");
+    } else {
+      setDataSource("assumption");
+    }
     setIsStale(false);
     setErrorMessage(null);
     return payload;

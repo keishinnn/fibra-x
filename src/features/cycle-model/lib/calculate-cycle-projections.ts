@@ -1,4 +1,5 @@
 import {
+  bearDrawdownScenarios,
   bullRatioLevels,
   cycleAnchors,
   defaultBearDrawdownPct,
@@ -8,6 +9,8 @@ import type {
   CycleAnchor,
   CycleCatalog,
   CycleDescriptor,
+  CycleKind,
+  CycleMode,
   DashboardSnapshot,
   PhaseState,
   ProjectionSet,
@@ -267,19 +270,39 @@ function buildSyntheticMarketPayload(options: {
   };
 }
 
-function getAssumptionMessages(mode: "realtime" | "assumption"): string[] {
+function toModeFromKind(kind: CycleKind): CycleMode {
+  if (kind === "current") {
+    return "realtime";
+  }
+  if (kind === "historical") {
+    return "historical";
+  }
+  return "assumption";
+}
+
+function getAssumptionMessages(mode: CycleMode): string[] {
   if (mode === "assumption") {
     return [
       "Selected cycle is rendered in assumption mode using deterministic synthetic candles.",
-      "Bear low estimate uses Fib 0.236 and a fixed -6.38% drawdown assumption.",
+      "Bear structure uses one Fib 0.236 anchor with three drawdown scenarios: shallow (-6.38%), base (-12%), and stress (-20%).",
+      "Base bear scenario is used as the canonical chain connector for future cycle continuity.",
       "Future cycle chaining uses the +63.40% extension bull path as the canonical connector.",
+      "Bull projection levels remain scenario zones at +30.20%, +48.50%, and +63.40% from cycle ATH.",
+    ];
+  }
+
+  if (mode === "historical") {
+    return [
+      "Selected cycle uses historical BTC/USD candles for the cycle date window.",
+      "Historical candles are rendered as market observations, while model levels remain heuristic overlays.",
+      "Bear structure uses one Fib 0.236 anchor with three drawdown scenarios: shallow (-6.38%), base (-12%), and stress (-20%).",
       "Bull projection levels remain scenario zones at +30.20%, +48.50%, and +63.40% from cycle ATH.",
     ];
   }
 
   return [
     "Selected cycle is in realtime mode with live market candles.",
-    "Bear low estimate uses Fib 0.236 and a fixed -6.38% drawdown assumption.",
+    "Bear structure uses one Fib 0.236 anchor with three drawdown scenarios: shallow (-6.38%), base (-12%), and stress (-20%).",
     "Bull projection levels are scenario zones at +30.20%, +48.50%, and +63.40% from cycle ATH.",
     "Model outputs are research heuristics and can fail under new market regimes.",
   ];
@@ -302,7 +325,20 @@ export function buildProjectionSet(
   drawdownPct: number = defaultBearDrawdownPct,
 ): ProjectionSet {
   const fib236 = calculateFibRetracementLevel(anchor.ath, anchor.previousLow, FIB_LEVEL);
-  const projectedLow = calculateProjectedBearLow(fib236, drawdownPct);
+  const bearScenarios = bearDrawdownScenarios.map((scenario) => ({
+    id: scenario.id,
+    label: scenario.label,
+    drawdownPct: scenario.drawdownPct,
+    projectedLow: calculateProjectedBearLow(fib236, scenario.drawdownPct),
+  }));
+
+  const baseScenario =
+    bearScenarios.find((scenario) => scenario.id === "base") ??
+    bearScenarios.find((scenario) => scenario.drawdownPct === drawdownPct) ??
+    bearScenarios[0];
+  const scenarioLows = bearScenarios.map((scenario) => scenario.projectedLow);
+  const scenarioMinLow = Math.min(...scenarioLows);
+  const scenarioMaxLow = Math.max(...scenarioLows);
 
   const bull = bullRatioLevels.map<BullProjection>((ratioItem) => ({
     label: ratioItem.label,
@@ -314,10 +350,12 @@ export function buildProjectionSet(
     referenceAth: anchor.ath,
     referenceLow: anchor.previousLow,
     bear: {
+      scenarios: bearScenarios,
       fib236,
-      drawdownPct,
-      projectedLow,
-      rangeLabel: toCurrencyRange(projectedLow, fib236),
+      drawdownPct: baseScenario.drawdownPct,
+      projectedLow: baseScenario.projectedLow,
+      rangeLabel: toCurrencyRange(baseScenario.projectedLow, fib236),
+      scenarioRangeLabel: toCurrencyRange(scenarioMinLow, scenarioMaxLow),
     },
     bull,
   };
@@ -329,6 +367,38 @@ export function getCurrentCycleId(): string {
 
 export function getCycleCatalog(lastHalvingYear: number = LAST_HALVING_YEAR): CycleCatalog {
   return buildCycleCatalog(buildCycleChain(lastHalvingYear));
+}
+
+export interface CycleSelectionMeta {
+  id: string;
+  label: string;
+  kind: CycleKind;
+  mode: CycleMode;
+  halvingDate: string;
+  startDate: string | null;
+  endDate: string | null;
+  previousLow: number;
+  ath: number;
+}
+
+export function getCycleSelectionMeta(
+  cycleId?: string | null,
+  lastHalvingYear: number = LAST_HALVING_YEAR,
+): CycleSelectionMeta {
+  const chain = buildCycleChain(lastHalvingYear);
+  const node = getCycleNodeById(chain, cycleId);
+
+  return {
+    id: node.descriptor.id,
+    label: node.descriptor.label,
+    kind: node.descriptor.kind,
+    mode: toModeFromKind(node.descriptor.kind),
+    halvingDate: node.descriptor.halvingDate,
+    startDate: node.anchor.startDate ?? null,
+    endDate: node.anchor.endDate ?? null,
+    previousLow: node.anchor.previousLow,
+    ath: node.anchor.ath,
+  };
 }
 
 export function detectPhaseState(currentPrice: number, projections: ProjectionSet): PhaseState {
@@ -378,6 +448,37 @@ export function detectPhaseState(currentPrice: number, projections: ProjectionSe
   };
 }
 
+function buildCycleDashboardSnapshot(options: {
+  market: MarketPayload;
+  chain: CycleChainNode[];
+  selectedNode: CycleChainNode;
+  mode: CycleMode;
+  isRealtime: boolean;
+}): DashboardSnapshot {
+  const previousNode = getPreviousNode(options.chain, options.selectedNode);
+
+  return {
+    market: options.market,
+    projections: options.selectedNode.projections,
+    phaseState: detectPhaseState(options.market.ticker.price, options.selectedNode.projections),
+    selectedCycle: options.selectedNode.descriptor,
+    cycleCatalog: buildCycleCatalog(options.chain),
+    mode: options.mode,
+    isRealtime: options.isRealtime,
+    interval: options.market.interval,
+    chartConnection: {
+      previousCycleId: previousNode?.descriptor.id ?? null,
+      previousCycleLabel: previousNode?.descriptor.label ?? null,
+      bridgeStartPrice: previousNode ? previousNode.projections.bear.fib236 : null,
+      bridgeEndPrice: previousNode ? options.selectedNode.anchor.previousLow : null,
+      bullLeadTargetPrice: options.selectedNode.projections.bull[1].projectedPrice,
+    },
+    assumptions: getAssumptionMessages(options.mode),
+    disclaimer:
+      "This tool is for educational and research purposes only. It does not provide financial advice, investment recommendations, or guaranteed predictions.",
+  };
+}
+
 export function buildRealtimeDashboardSnapshot(options: {
   market: MarketPayload;
   cycleId?: string | null;
@@ -387,28 +488,34 @@ export function buildRealtimeDashboardSnapshot(options: {
   const currentNode = getCycleNodeById(chain, getCurrentCycleId());
   const selectedNode = options.cycleId ? getCycleNodeById(chain, options.cycleId) : currentNode;
   const realtimeNode = selectedNode.descriptor.kind === "current" ? selectedNode : currentNode;
-  const previousNode = getPreviousNode(chain, realtimeNode);
 
-  return {
+  return buildCycleDashboardSnapshot({
     market: options.market,
-    projections: realtimeNode.projections,
-    phaseState: detectPhaseState(options.market.ticker.price, realtimeNode.projections),
-    selectedCycle: realtimeNode.descriptor,
-    cycleCatalog: buildCycleCatalog(chain),
+    chain,
+    selectedNode: realtimeNode,
     mode: "realtime",
     isRealtime: true,
-    interval: options.market.interval,
-    chartConnection: {
-      previousCycleId: previousNode?.descriptor.id ?? null,
-      previousCycleLabel: previousNode?.descriptor.label ?? null,
-      bridgeStartPrice: previousNode ? previousNode.projections.bear.fib236 : null,
-      bridgeEndPrice: previousNode ? realtimeNode.anchor.previousLow : null,
-      bullLeadTargetPrice: realtimeNode.projections.bull[1].projectedPrice,
-    },
-    assumptions: getAssumptionMessages("realtime"),
-    disclaimer:
-      "This tool is for educational and research purposes only. It does not provide financial advice, investment recommendations, or guaranteed predictions.",
-  };
+  });
+}
+
+export function buildHistoricalDashboardSnapshot(options: {
+  market: MarketPayload;
+  cycleId: string;
+  lastHalvingYear?: number;
+}): DashboardSnapshot {
+  const chain = buildCycleChain(options.lastHalvingYear ?? LAST_HALVING_YEAR);
+  const selectedNode = getCycleNodeById(chain, options.cycleId);
+  const firstHistoricalNode = chain.find((node) => node.descriptor.kind === "historical");
+  const historicalNode =
+    selectedNode.descriptor.kind === "historical" ? selectedNode : (firstHistoricalNode ?? selectedNode);
+
+  return buildCycleDashboardSnapshot({
+    market: options.market,
+    chain,
+    selectedNode: historicalNode,
+    mode: "historical",
+    isRealtime: false,
+  });
 }
 
 export function buildAssumptionDashboardSnapshot(options: {
@@ -420,7 +527,6 @@ export function buildAssumptionDashboardSnapshot(options: {
 }): DashboardSnapshot {
   const chain = buildCycleChain(options.lastHalvingYear ?? LAST_HALVING_YEAR);
   const selectedNode = getCycleNodeById(chain, options.cycleId);
-  const previousNode = getPreviousNode(chain, selectedNode);
   const market = buildSyntheticMarketPayload({
     node: selectedNode,
     interval: options.interval,
@@ -428,26 +534,13 @@ export function buildAssumptionDashboardSnapshot(options: {
     symbol: options.symbol,
   });
 
-  return {
+  return buildCycleDashboardSnapshot({
     market,
-    projections: selectedNode.projections,
-    phaseState: detectPhaseState(market.ticker.price, selectedNode.projections),
-    selectedCycle: selectedNode.descriptor,
-    cycleCatalog: buildCycleCatalog(chain),
+    chain,
+    selectedNode,
     mode: "assumption",
     isRealtime: false,
-    interval: options.interval,
-    chartConnection: {
-      previousCycleId: previousNode?.descriptor.id ?? null,
-      previousCycleLabel: previousNode?.descriptor.label ?? null,
-      bridgeStartPrice: previousNode ? previousNode.projections.bear.fib236 : null,
-      bridgeEndPrice: selectedNode.anchor.previousLow,
-      bullLeadTargetPrice: selectedNode.projections.bull[1].projectedPrice,
-    },
-    assumptions: getAssumptionMessages("assumption"),
-    disclaimer:
-      "This tool is for educational and research purposes only. It does not provide financial advice, investment recommendations, or guaranteed predictions.",
-  };
+  });
 }
 
 export function buildDashboardSnapshot(market: MarketPayload): DashboardSnapshot {

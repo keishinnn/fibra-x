@@ -110,9 +110,9 @@ export const projectionZones: ProjectionZone[] = [
 ];
 
 export const cycleComparison: CycleComparisonRow[] = [
-  { cycle: "2011-2013", bottom: "$2", peak: "$1,160", growth: "580x", drawdown: "-86%" },
-  { cycle: "2015-2017", bottom: "$152", peak: "$19,783", growth: "130x", drawdown: "-84%" },
-  { cycle: "2018-2021", bottom: "$3,122", peak: "$69,000", growth: "22.1x", drawdown: "-77%" },
+  { cycle: "2011-2015", bottom: "$2", peak: "$1,160", growth: "580x", drawdown: "-86%" },
+  { cycle: "2015-2018", bottom: "$152", peak: "$19,783", growth: "130x", drawdown: "-84%" },
+  { cycle: "2018-2022", bottom: "$3,122", peak: "$69,000", growth: "22.1x", drawdown: "-77%" },
   { cycle: "2022-2025", bottom: "$15,476", peak: "$110,200", growth: "7.1x", drawdown: "-31%" },
 ];
 
