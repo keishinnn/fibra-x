@@ -43,18 +43,18 @@ export const backtestCases: BacktestCase[] = [
   {
     id: "2025",
     cycle: "2022-2025",
-    projectedMin: 118000,
-    projectedMax: 146000,
-    actualTop: 110200,
+    projectedMin: 164400,
+    projectedMax: 206325,
+    actualTop: 126272,
     cycleLow: 15476,
-    bearDrawdownPct: -31,
-    note: "Under-extension case versus median band; signals regime shift risk.",
+    bearDrawdownPct: -6.38,
+    note: "Current-cycle top stayed below projected bull scenario zone, highlighting model uncertainty and timing drift risk.",
   },
 ];
 
 export const backtestSummary = {
   totalCycles: 4,
   withinBandHits: 3,
-  averageAbsDeviationPct: 4.3,
-  maxMissPct: 8.1,
+  averageAbsDeviationPct: 9.7,
+  maxMissPct: 31.9,
 };

@@ -18,7 +18,8 @@ export const technicalStack = [
   "TypeScript strict mode",
   "Tailwind CSS 4",
   "Feature-based frontend architecture",
-  "Dummy data-first modeling workflow",
+  "Coinbase realtime market data (60s polling)",
+  "Formula-driven Fibonacci and cycle-ratio projection engine",
 ];
 
 export const architecturePrinciples = [

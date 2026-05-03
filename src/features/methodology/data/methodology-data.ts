@@ -12,12 +12,12 @@ export const methodologySections: MethodologySectionItem[] = [
     indexLabel: "01",
     title: "What the model measures",
     summary:
-      "The model maps where Bitcoin sits in a cycle by combining price expansion, retracement depth, and phase transition behavior.",
+      "The model tracks a repeating loop: bear-level estimation from Fibonacci retracement, then bull-level scenario projection from cycle ratio behavior.",
     bullets: [
-      "Bottom-to-top expansion multiples across halving cycles.",
-      "Retracement depth against key Fibonacci anchors.",
-      "Phase behavior shifts: accumulation, expansion, distribution, and bear pressure.",
-      "Relative position versus prior cycle progression windows.",
+      "Bear start reference: Fibonacci 0.236 calculated from ATH to previous cycle low.",
+      "Bear exact-low estimate: apply the fixed drawdown hypothesis of -6.38% from the 0.236 level.",
+      "Bull projection zones: +30.20%, +48.50%, +63.40% above the latest cycle ATH.",
+      "Phase interpretation: prices are mapped to scenarios, not deterministic targets.",
     ],
   },
   {
@@ -25,12 +25,12 @@ export const methodologySections: MethodologySectionItem[] = [
     indexLabel: "02",
     title: "How cycle bottoms and tops are selected",
     summary:
-      "Cycle anchors are selected from structural turning points on weekly price action rather than single intraday spikes.",
+      "Anchors are chosen on weekly structure and tied to halving-cycle context for consistency across historical comparisons.",
     bullets: [
-      "Bottom anchor: drawdown completion and base-building confirmation.",
-      "Top anchor: exhaustion zone after accelerated expansion and distribution behavior.",
-      "Secondary validation through post-anchor retest and rejection patterns.",
-      "No anchor is treated as permanent truth; anchors are revised if structure breaks.",
+      "2011-2013 anchor: low $2 (Oct 17, 2011), peak $1,163 (Nov 25, 2013).",
+      "2015-2017 anchor: low $152 (Jan 12, 2015), peak $19,666 (Dec 11, 2017).",
+      "2018-2021 anchor: low $3,122 (Dec 10, 2018), peak $69,000 (Nov 8, 2021).",
+      "2022-2025 anchor: low $15,479 (Nov 21, 2022), peak $126,272 (Oct 26, 2025).",
     ],
   },
   {
@@ -38,12 +38,12 @@ export const methodologySections: MethodologySectionItem[] = [
     indexLabel: "03",
     title: "Fibonacci ratio logic",
     summary:
-      "FibraX uses Fibonacci-based ratio bands to define projection zones rather than a single deterministic target.",
+      "FibraX uses a fixed Fibonacci retracement set and a ratio-based projection method to define bull/bear zones.",
     bullets: [
-      "Base expansion from cycle low to prior cycle high.",
-      "Projection bands built around common extension clusters.",
-      "Retracement thresholds used for invalidation and confidence shifts.",
-      "Zones are evaluated as probabilities, not certainties.",
+      "Retracement set: 0, 0.236, 0.382, 0.5, 0.616, 0.66, 0.786, 1.",
+      "Bear process: ATH -> previous low, then read 0.236 as bear-start reference.",
+      "Bull process: use historical bull percentages and derive ratio range 3.02-6.34.",
+      "Current bull scenarios from $126,272 ATH: $164,400, $187,250, $206,325.",
     ],
   },
   {
@@ -51,11 +51,12 @@ export const methodologySections: MethodologySectionItem[] = [
     indexLabel: "04",
     title: "Historical cycle results",
     summary:
-      "Historical results show how zone-based outputs compare against realized cycle behavior, including over- and under-shoots.",
+      "Historical bear-market checks compare the 0.236 starting point with realized lows to quantify drawdown drift.",
     bullets: [
-      "Cross-cycle growth and drawdown comparison.",
-      "Model fit reviewed at regime boundaries.",
-      "Deviations tracked to recalibrate future zone widths.",
+      "2011-2013 drawdown from Fib 0.236 to low: -45.13%.",
+      "2015-2017 drawdown from Fib 0.236 to low: -34.27%.",
+      "2018-2021 drawdown from Fib 0.236 to low: -17.10%.",
+      "2022-2025 current-cycle estimate applies the base-case -6.38% assumption.",
     ],
   },
   {
@@ -74,8 +75,8 @@ export const methodologySections: MethodologySectionItem[] = [
 ];
 
 export const methodologyResults = [
-  { cycle: "2011-2013", projectedBand: "$980-$1,280", actualTop: "$1,160", deviation: "+5.2%" },
-  { cycle: "2015-2017", projectedBand: "$16.2k-$22.6k", actualTop: "$19,783", deviation: "+2.1%" },
-  { cycle: "2018-2021", projectedBand: "$56k-$79k", actualTop: "$69,000", deviation: "-1.6%" },
-  { cycle: "2022-2025", projectedBand: "$118k-$146k", actualTop: "$110,200", deviation: "-8.1%" },
+  { cycle: "2011-2013", projectedBand: "$277", actualTop: "$152", deviation: "-45.13%" },
+  { cycle: "2015-2017", projectedBand: "$4,768", actualTop: "$3,122", deviation: "-34.27%" },
+  { cycle: "2018-2021", projectedBand: "$18,678", actualTop: "$15,479", deviation: "-17.10%" },
+  { cycle: "2022-2025", projectedBand: "$41,604", actualTop: "$38,966 (assumed)", deviation: "-6.38% (base case)" },
 ];

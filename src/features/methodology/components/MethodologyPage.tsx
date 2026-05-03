@@ -55,9 +55,9 @@ export function MethodologyPage() {
                       <thead>
                         <tr className="border-b border-zinc-900 text-[11px] uppercase tracking-wide text-zinc-500">
                           <th className="px-2 py-2 font-medium">Cycle</th>
-                          <th className="px-2 py-2 font-medium">Projected Band</th>
-                          <th className="px-2 py-2 font-medium">Actual Top</th>
-                          <th className="px-2 py-2 font-medium">Deviation</th>
+                          <th className="px-2 py-2 font-medium">Fib 0.236 Start</th>
+                          <th className="px-2 py-2 font-medium">Exact / Assumed Low</th>
+                          <th className="px-2 py-2 font-medium">Drawdown from 0.236</th>
                         </tr>
                       </thead>
                       <tbody>
