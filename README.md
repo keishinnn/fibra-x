@@ -16,6 +16,7 @@ FibraX is a chart-first dashboard that maps Bitcoin cycle structure, Fibonacci z
 - React 19
 - TypeScript (strict)
 - Tailwind CSS 4
+- Tanstack Query
 - ESLint 9
 
 ## Run Locally
