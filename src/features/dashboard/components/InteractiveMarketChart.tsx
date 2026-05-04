@@ -257,7 +257,7 @@ export function InteractiveMarketChart({
         mouseWheel: true,
         pressedMouseMove: true,
         horzTouchDrag: true,
-        vertTouchDrag: false,
+        vertTouchDrag: true,
       },
       handleScale: {
         mouseWheel: true,
@@ -408,5 +408,5 @@ export function InteractiveMarketChart({
     priceLineHostRef.current = hostSeries;
   }, [levels, useFutureLineMode]);
 
-  return <div ref={containerRef} className="h-full w-full" />;
+  return <div ref={containerRef} className="h-full w-full touch-none" style={{ touchAction: "none" }} />;
 }

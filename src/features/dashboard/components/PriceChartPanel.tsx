@@ -142,7 +142,10 @@ export function PriceChartPanel({ snapshot, isHistoricalCycleLoading }: PriceCha
         ) : (
           <>
             <div className="grid gap-3 xl:grid-cols-[1.45fr_0.85fr]">
-              <div className="h-[300px] overflow-hidden rounded-md border border-zinc-900 bg-black/75 sm:h-[430px]">
+              <div className="relative h-[300px] overflow-hidden rounded-md border border-zinc-900 bg-black/75 sm:h-[430px]">
+                <div className="pointer-events-none absolute left-2 top-2 z-10 rounded-md border border-zinc-800/90 bg-black/65 px-2 py-1 text-[10px] text-zinc-300 sm:hidden">
+                  Pinch to zoom. Drag to pan.
+                </div>
                 <InteractiveMarketChart
                   candles={snapshot.market.candles}
                   levels={chartLevels}
