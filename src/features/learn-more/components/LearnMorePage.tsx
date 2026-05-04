@@ -12,7 +12,6 @@ import {
   halvingPrimerPoints,
   learnLinkCards,
   learnNavItems,
-  learnPageDisclaimer,
   researchWorkflowSteps,
   uptrendSteps,
   whyFibonacciReasons,
@@ -40,7 +39,7 @@ function getStatusTone(status: "completed" | "active" | "upcoming"): string {
   return "border-sky-500/35 bg-sky-500/10 text-sky-300";
 }
 
-export function LearnPage() {
+export function LearnMorePage() {
   const [navOpen, setNavOpen] = useState(false);
   const [selectedHalvingId, setSelectedHalvingId] = useState(defaultHalvingId);
 
@@ -64,9 +63,6 @@ export function LearnPage() {
             Beginner-friendly guidance for understanding Fibonacci retracement, why traders watch these zones, and how
             halving context can support cycle-based market research.
           </p>
-          <section className="mt-4 rounded-lg border border-[#F7931A]/30 bg-[#F7931A]/10 p-3">
-            <p className="text-xs leading-relaxed text-zinc-200">{learnPageDisclaimer}</p>
-          </section>
         </header>
 
         <div className="mt-4 lg:hidden">
@@ -279,7 +275,7 @@ export function LearnPage() {
               </ul>
 
               <div className="mt-4">
-                <div className="grid gap-2 sm:grid-cols-2 lg:flex lg:overflow-x-auto lg:pb-1">
+                <div className="grid gap-2 sm:grid-cols-2">
                   {halvingMilestones.map((milestone) => (
                     <button
                       key={milestone.id}
@@ -288,7 +284,7 @@ export function LearnPage() {
                       className={`rounded-md border px-3 py-2 text-left text-xs transition-colors ${milestone.id === selectedHalvingId
                         ? "border-[#F7931A]/45 bg-[#F7931A]/14 text-zinc-100"
                         : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
-                        } w-full lg:min-w-[200px] lg:w-auto`}
+                        } w-full`}
                     >
                       <p className="font-medium">{milestone.label}</p>
                       <p className="mt-0.5">{formatCalendarDate(milestone.date)}</p>
@@ -372,9 +368,13 @@ export function LearnPage() {
               </div>
             </section>
 
-            <section className="rounded-xl border border-[#F7931A]/30 bg-[#F7931A]/10 p-4">
+            {/* Disclaimer */}
+            <section className="rounded-xl border border-[#F7931A]/30 bg-[#F7931A]/10 p-4 mt-4">
               <p className="text-xs uppercase tracking-wide text-[#F7931A]">Disclaimer</p>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-200">{learnPageDisclaimer}</p>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-200">
+                FibraX is for educational and research purposes only. It is not financial advice, not an investment
+                recommendation, and not a guarantee of future market behavior.
+              </p>
             </section>
           </div>
         </div>

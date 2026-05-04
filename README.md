@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FibraX
 
-## Getting Started
+Bitcoin Cycle Ratio Visualizer for research and education.
 
-First, run the development server:
+FibraX is a chart-first dashboard that maps Bitcoin cycle structure, Fibonacci zones, and scenario bands for historical comparison. It is a research tool, not a prediction engine.
+
+## Disclaimer
+
+- Educational and research use only.
+- Not financial advice.
+- Market behavior is uncertain and models can fail.
+
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript (strict)
+- Tailwind CSS 4
+- ESLint 9
+
+## Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Quality Checks
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Before shipping significant changes:
 
-## Learn More
+```bash
+npm run lint
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Market Data: How BTC Is Fetched
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+FibraX does not fetch Coinbase directly from the browser. The flow is:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Client polls `GET /api/market/btc` every 60 seconds.
+2. Route handler decides whether to return realtime, historical, or assumption snapshot.
+3. Realtime pulls BTC data from Coinbase Exchange public market endpoints:
+   - `/products/BTC-USD/ticker`
+   - `/products/BTC-USD/candles`
+4. Historical flow tries CryptoCompare first, then falls back to Coinbase candles if needed.
 
-## Deploy on Vercel
+### Coinbase API Key Note
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Current FibraX market feed uses public market-data endpoints and does not send Coinbase auth headers. No Coinbase API key is required for the current realtime ticker/candle flow.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Private trading/account endpoints are not used in this project.
+
+## High-Level Structure
+
+- `src/app`: routes, layout shells, API route entrypoints
+- `src/features`: feature-based modules (`about`, `dashboard`, `market-data`, `methodology`, `learn-more`, etc.)
+- `src/components`: shared layout and reusable UI pieces
+- `src/lib`: cross-feature helpers
+
+## Product Positioning
+
+FibraX presents projection zones, scenarios, invalidation context, and historical comparisons. Outputs should never be interpreted as guaranteed future prices.

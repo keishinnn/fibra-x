@@ -119,13 +119,24 @@ export function MethodologyPage() {
                 {methodologyVisualSteps.map((step) => (
                   <article key={step.id} className="overflow-hidden rounded-lg border border-zinc-900 bg-black/45">
                     <div className="relative aspect-[16/9] w-full border-b border-zinc-900 bg-black">
-                      <Image
-                        src={step.imageSrc}
-                        alt={step.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 100vw, 900px"
-                        className="object-contain"
-                      />
+                      <a
+                        href={step.imageSrc}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Open ${step.title} image in full resolution`}
+                        className="group relative block h-full w-full"
+                      >
+                        <Image
+                          src={step.imageSrc}
+                          alt={step.title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 100vw, 900px"
+                          className="object-contain transition-transform duration-200 group-hover:scale-[1.01]"
+                        />
+                        <span className="pointer-events-none absolute bottom-2 right-2 rounded border border-zinc-700 bg-zinc-950/90 px-2 py-1 text-[11px] uppercase tracking-wide text-zinc-300">
+                          Open full size
+                        </span>
+                      </a>
                     </div>
                     <div className="p-4">
                       <h3 className="text-sm font-medium text-zinc-100 sm:text-base">{step.title}</h3>

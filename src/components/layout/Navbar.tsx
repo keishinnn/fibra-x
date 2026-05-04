@@ -89,7 +89,7 @@ export function Navbar() {
           <nav
             id="mobile-nav"
             aria-label="Mobile navigation"
-            className="mt-3 min-h-0 rounded-lg border border-zinc-900 bg-zinc-950/95 p-2"
+            className="mt-1 min-h-0 rounded-lg border border-zinc-900 bg-zinc-950/95 pb-0"
           >
             {navLinks.map((link) => {
               const active = pathname === link.href || pathname.startsWith(`${link.href}/`);

@@ -230,6 +230,3 @@ export const learnLinkCards: LearnLinkCard[] = [
     body: "Use live cycle metrics, projection zones, and phase states to continue your research flow.",
   },
 ];
-
-export const learnPageDisclaimer =
-  "FibraX is for educational and research purposes only. It is not financial advice, not an investment recommendation, and not a guarantee of future market behavior.";
