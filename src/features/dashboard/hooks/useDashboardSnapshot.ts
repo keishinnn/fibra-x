@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import {
   getCurrentCycleId,
   getCycleSelectionMeta,
@@ -10,7 +11,6 @@ import type { DashboardSnapshot } from "@/features/cycle-model/types/cycle-model
 import type { MarketInterval } from "@/features/market-data/types/market-data.types";
 
 const POLL_INTERVAL_MS = 60_000;
-const HISTORICAL_LOADING_UI_DELAY_MS = 180;
 
 const intervalLimit: Record<MarketInterval, number> = {
   "1d": 300,
@@ -44,135 +44,44 @@ function toDataSource(mode: DashboardSnapshot["mode"]): SnapshotDataSource {
   return "assumption";
 }
 
+async function fetchSnapshot(targetInterval: MarketInterval, cycleId: string): Promise<DashboardSnapshot> {
+  const limit = intervalLimit[targetInterval];
+  const response = await fetch(`/api/market/btc?interval=${targetInterval}&limit=${limit}&cycleId=${cycleId}`, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Realtime market feed unavailable.");
+  }
+
+  return (await response.json()) as DashboardSnapshot;
+}
+
 export function useDashboardSnapshot(): UseDashboardSnapshotResult {
   const defaultCycleId = getCurrentCycleId();
   const [interval, setInterval] = useState<MarketInterval>("1w");
   const [selectedCycleId, setSelectedCycleId] = useState<string>(defaultCycleId);
-  const [snapshot, setSnapshot] = useState<DashboardSnapshot>(dashboardFallbackSnapshot);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isHistoricalCycleLoading, setIsHistoricalCycleLoading] = useState(false);
-  const [isCurrentCyclePageLoading, setIsCurrentCyclePageLoading] = useState(true);
-  const [isStale, setIsStale] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [dataSource, setDataSource] = useState<SnapshotDataSource>("fallback");
-  const requestSequenceRef = useRef(0);
-  const previousSelectedCycleIdRef = useRef(selectedCycleId);
-  const lastStableCycleIdRef = useRef(defaultCycleId);
-  const hasCompletedInitialRequestRef = useRef(false);
+  const cycleSelection = getCycleSelectionMeta(selectedCycleId);
 
-  const fetchSnapshot = useCallback(async (targetInterval: MarketInterval, cycleId: string) => {
-    const limit = intervalLimit[targetInterval];
-    const response = await fetch(`/api/market/btc?interval=${targetInterval}&limit=${limit}&cycleId=${cycleId}`, {
-      method: "GET",
-      cache: "no-store",
-    });
+  const snapshotQuery = useQuery({
+    queryKey: ["dashboard-snapshot", interval, selectedCycleId],
+    queryFn: () => fetchSnapshot(interval, selectedCycleId),
+    placeholderData: keepPreviousData,
+    refetchInterval: (query) => {
+      const payload = query.state.data as DashboardSnapshot | undefined;
+      return payload?.isRealtime ? POLL_INTERVAL_MS : false;
+    },
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
 
-    if (!response.ok) {
-      throw new Error("Realtime market feed unavailable.");
-    }
-
-    return (await response.json()) as DashboardSnapshot;
-  }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    let loadingStateTimeoutId: ReturnType<typeof setTimeout> | null = null;
-    let isFirstRequestForSelection = true;
-    const cycleSelection = getCycleSelectionMeta(selectedCycleId);
-    const selectionChanged = previousSelectedCycleIdRef.current !== selectedCycleId;
-    const isHistoricalSelectionLoad = selectionChanged && cycleSelection.kind === "historical";
-    const isCurrentCycleSelectionLoad = selectionChanged && cycleSelection.kind === "current";
-    const isInitialCurrentLoad =
-      !hasCompletedInitialRequestRef.current && cycleSelection.kind === "current";
-
-    previousSelectedCycleIdRef.current = selectedCycleId;
-
-    const run = async () => {
-      const requestId = requestSequenceRef.current + 1;
-      requestSequenceRef.current = requestId;
-      let shouldPoll = false;
-      const shouldShowCurrentCyclePageLoading =
-        isFirstRequestForSelection && (isCurrentCycleSelectionLoad || isInitialCurrentLoad);
-      const shouldShowHistoricalCycleLoading = isFirstRequestForSelection && isHistoricalSelectionLoad;
-
-      try {
-        if (isMounted) {
-          setIsLoading(true);
-          setIsCurrentCyclePageLoading(shouldShowCurrentCyclePageLoading);
-          if (shouldShowHistoricalCycleLoading) {
-            loadingStateTimeoutId = setTimeout(() => {
-              if (isMounted && requestId === requestSequenceRef.current) {
-                setIsHistoricalCycleLoading(true);
-              }
-            }, HISTORICAL_LOADING_UI_DELAY_MS);
-          } else {
-            setIsHistoricalCycleLoading(false);
-          }
-        }
-        const payload = await fetchSnapshot(interval, selectedCycleId);
-        if (!isMounted || requestId !== requestSequenceRef.current) {
-          return;
-        }
-
-        setSnapshot(payload);
-        setDataSource(toDataSource(payload.mode));
-        setIsStale(false);
-        setErrorMessage(null);
-        lastStableCycleIdRef.current = payload.selectedCycle.id;
-        shouldPoll = payload.isRealtime;
-      } catch (error) {
-        if (!isMounted || requestId !== requestSequenceRef.current) {
-          return;
-        }
-
-        if (isMounted) {
-          setIsStale(true);
-          setDataSource("fallback");
-          setErrorMessage(error instanceof Error ? error.message : "Unable to refresh market data.");
-          if (isHistoricalSelectionLoad && lastStableCycleIdRef.current !== selectedCycleId) {
-            previousSelectedCycleIdRef.current = lastStableCycleIdRef.current;
-            setSelectedCycleId(lastStableCycleIdRef.current);
-          }
-        }
-      } finally {
-        if (loadingStateTimeoutId) {
-          clearTimeout(loadingStateTimeoutId);
-          loadingStateTimeoutId = null;
-        }
-
-        if (!isMounted || requestId !== requestSequenceRef.current) {
-          return;
-        }
-
-        if (isMounted) {
-          hasCompletedInitialRequestRef.current = true;
-          isFirstRequestForSelection = false;
-          setIsLoading(false);
-          setIsHistoricalCycleLoading(false);
-          setIsCurrentCyclePageLoading(false);
-
-          if (shouldPoll) {
-            timeoutId = setTimeout(async () => {
-              await run();
-            }, POLL_INTERVAL_MS);
-          }
-        }
-      }
-    };
-
-    void run();
-
-    return () => {
-      isMounted = false;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      if (loadingStateTimeoutId) {
-        clearTimeout(loadingStateTimeoutId);
-      }
-    };
-  }, [fetchSnapshot, interval, selectedCycleId]);
+  const snapshot = snapshotQuery.data ?? dashboardFallbackSnapshot;
+  const dataSource: SnapshotDataSource = snapshotQuery.isError ? "fallback" : toDataSource(snapshot.mode);
+  const isHistoricalCycleLoading = cycleSelection.kind === "historical" && snapshotQuery.isFetching;
+  const isCurrentCyclePageLoading =
+    cycleSelection.kind === "current" &&
+    (snapshotQuery.isPending || (snapshotQuery.isFetching && snapshotQuery.isPlaceholderData));
 
   return {
     interval,
@@ -180,11 +89,11 @@ export function useDashboardSnapshot(): UseDashboardSnapshotResult {
     selectedCycleId,
     setSelectedCycleId,
     snapshot,
-    isLoading,
+    isLoading: snapshotQuery.isFetching,
     isHistoricalCycleLoading,
     isCurrentCyclePageLoading,
-    isStale,
-    errorMessage,
+    isStale: snapshotQuery.isError,
+    errorMessage: snapshotQuery.isError ? snapshotQuery.error?.message ?? "Unable to refresh market data." : null,
     dataSource,
   };
 }

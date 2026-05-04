@@ -1,5 +1,5 @@
 import { developer, projectLimitations, projectPurpose } from "@/features/about/data/about-data";
-import { siCoinbase, siNextdotjs, siTailwindcss, siTypescript } from "simple-icons";
+import { siCoinbase, siNextdotjs, siReactquery, siTailwindcss, siTypescript } from "simple-icons";
 
 type BuiltWithIcon = {
   color: string;
@@ -27,6 +27,10 @@ const BUILT_WITH_ICON_MAP: Record<string, BuiltWithIcon> = {
   "Coinbase API": {
     color: `#${siCoinbase.hex}`,
     path: siCoinbase.path,
+  },
+  "TanStack Query": {
+    color: `#${siReactquery.hex}`,
+    path: siReactquery.path,
   },
   "Feature-based architecture": FEATURE_ARCHITECTURE_ICON,
 };

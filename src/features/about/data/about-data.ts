@@ -37,5 +37,12 @@ export const developer = {
     label: "github.com/keishinnn",
     url: "https://github.com/keishinnn",
   },
-  builtWith: ["Next.js App Router", "TypeScript", "Tailwind CSS 4", "Coinbase API", "Feature-based architecture"],
+  builtWith: [
+    "Next.js App Router",
+    "TypeScript",
+    "Tailwind CSS 4",
+    "TanStack Query",
+    "Coinbase API",
+    "Feature-based architecture",
+  ],
 };
