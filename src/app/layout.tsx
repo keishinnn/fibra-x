@@ -16,12 +16,34 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://fibra-x.vercel.app"),
   title: {
     default: "FibraX",
     template: "%s",
   },
+  applicationName: "FibraX",
   description:
     "A Bitcoin cycle research dashboard for visualizing bull and bear market phases with Fibonacci ratio context.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "FibraX",
+    title: "FibraX",
+    description:
+      "A Bitcoin cycle research dashboard for visualizing bull and bear market phases with Fibonacci ratio context.",
+    url: "https://fibra-x.vercel.app/dashboard",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FibraX",
+    description:
+      "A Bitcoin cycle research dashboard for visualizing bull and bear market phases with Fibonacci ratio context.",
+  },
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

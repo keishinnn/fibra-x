@@ -21,7 +21,7 @@ export function Navbar() {
       <div className="fx-container py-3 sm:py-4">
         <div className="flex items-center justify-between gap-3">
 
-          <Link href="/" className="flex items-center gap-1">
+          <Link href="/dashboard" className="flex items-center gap-1">
             <Image
               src="/logo.png"
               width={32}
@@ -62,7 +62,8 @@ export function Navbar() {
 
           <nav aria-label="Primary navigation" className="mt-1 hidden items-center gap-1 sm:flex">
             {navLinks.map((link) => {
-              const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              const isDashboardRoot = link.href === "/dashboard" && pathname === "/";
+              const active = isDashboardRoot || pathname === link.href || pathname.startsWith(`${link.href}/`);
 
               return (
                 <Link
@@ -92,7 +93,8 @@ export function Navbar() {
             className="mt-1 min-h-0 rounded-lg border border-zinc-900 bg-zinc-950/95 pb-0"
           >
             {navLinks.map((link) => {
-              const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              const isDashboardRoot = link.href === "/dashboard" && pathname === "/";
+              const active = isDashboardRoot || pathname === link.href || pathname.startsWith(`${link.href}/`);
 
               return (
                 <Link
