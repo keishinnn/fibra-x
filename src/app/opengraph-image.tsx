@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "next/og";
 
 export const alt = "FibraX - Bitcoin Cycle Ratio Visualizer";
@@ -6,6 +7,7 @@ export const size = {
   height: 630,
 };
 export const contentType = "image/png";
+const logoUrl = "https://fibra-x.vercel.app/logo.png";
 
 export default function OpenGraphImage() {
   return new ImageResponse(
@@ -23,27 +25,32 @@ export default function OpenGraphImage() {
           fontFamily: "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "14px",
-            fontSize: 26,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "#f7931a",
-          }}
-        >
-          <div
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <img
+            src={logoUrl}
+            width={54}
+            height={54}
+            alt="FibraX logo"
             style={{
-              height: "14px",
-              width: "14px",
-              borderRadius: "9999px",
-              background: "#f7931a",
-              boxShadow: "0 0 18px rgba(247, 147, 26, 0.5)",
+              borderRadius: "12px",
+              objectFit: "contain",
+              border: "1px solid rgba(247, 147, 26, 0.35)",
+              background: "rgba(255, 255, 255, 0.02)",
+              padding: "5px",
             }}
           />
-          FibraX
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              fontSize: 44,
+              fontWeight: 700,
+              lineHeight: 1,
+              color: "#f4f4f5",
+            }}
+          >
+            FibraX
+          </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
