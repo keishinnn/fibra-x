@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/methodology", label: "Methodology" },
+  { href: "/learn-more", label: "Learn More" },
   { href: "/about", label: "About" },
 ];
 
@@ -15,12 +17,25 @@ export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="border-b border-zinc-900/80 bg-black/80 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-zinc-900/80 bg-black/80 backdrop-blur">
       <div className="fx-container py-3 sm:py-4">
         <div className="flex items-center justify-between gap-3">
-          <Link href="/" className="text-lg font-semibold tracking-tight text-zinc-100">
-            FibraX
+
+          <Link href="/" className="flex items-center gap-1">
+            <Image
+              src="/logo.png"
+              width={32}
+              height={32}
+              alt="FibraX logo"
+              className="h-8 w-8 object-contain"
+              priority
+            />
+
+            <span className="text-lg font-semibold tracking-tight text-zinc-100">
+              FibraX
+            </span>
           </Link>
+
 
           <button
             type="button"

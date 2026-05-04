@@ -83,7 +83,7 @@ export function MethodologyPage() {
         <div className="mt-4 grid gap-4 xl:grid-cols-[220px_minmax(0,1fr)] xl:mt-5">
 
           {/* Desktop Sidebar */}
-          <aside className="hidden h-fit rounded-xl border border-zinc-900 bg-zinc-950/70 p-4 xl:block xl:sticky xl:top-6">
+          <aside className="hidden h-fit rounded-xl border border-zinc-900 bg-zinc-950/70 p-4 xl:block xl:sticky xl:top-20">
             <p className="text-xs uppercase tracking-wide text-zinc-500">Section Index</p>
             <nav className="mt-3 space-y-2">
               {allNavItems.map((item) => (
@@ -105,7 +105,7 @@ export function MethodologyPage() {
             {/* Visual Walkthrough */}
             <section id="visual-walkthrough" className="rounded-xl border border-zinc-900 bg-zinc-950/70 p-5 sm:p-6">
               <div className="flex items-center gap-2">
-                <span className="rounded border border-zinc-800 px-2 py-0.5 text-xs text-zinc-500">00</span>
+                <span className="rounded border border-zinc-800 px-2 py-0.5 text-xs text-[#F7931A]">00</span>
                 <h2 className="text-lg font-semibold tracking-tight text-zinc-100 sm:text-xl">
                   Visual Method Walkthrough
                 </h2>
@@ -154,7 +154,7 @@ export function MethodologyPage() {
                 className="rounded-xl border border-zinc-900 bg-zinc-950/70 p-5 sm:p-6"
               >
                 <div className="flex items-center gap-2">
-                  <span className="rounded border border-zinc-800 px-2 py-0.5 text-xs text-zinc-500">
+                  <span className="rounded border border-zinc-800 px-2 py-0.5 text-xs text-[#F7931A]">
                     {section.indexLabel}
                   </span>
                   <h2 className="text-lg font-semibold tracking-tight text-zinc-100 sm:text-xl">

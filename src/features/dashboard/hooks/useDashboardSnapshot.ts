@@ -78,6 +78,7 @@ export function useDashboardSnapshot(): UseDashboardSnapshotResult {
     let isMounted = true;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
     let loadingStateTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    let isFirstRequestForSelection = true;
     const cycleSelection = getCycleSelectionMeta(selectedCycleId);
     const selectionChanged = previousSelectedCycleIdRef.current !== selectedCycleId;
     const isHistoricalSelectionLoad = selectionChanged && cycleSelection.kind === "historical";
@@ -91,12 +92,15 @@ export function useDashboardSnapshot(): UseDashboardSnapshotResult {
       const requestId = requestSequenceRef.current + 1;
       requestSequenceRef.current = requestId;
       let shouldPoll = false;
+      const shouldShowCurrentCyclePageLoading =
+        isFirstRequestForSelection && (isCurrentCycleSelectionLoad || isInitialCurrentLoad);
+      const shouldShowHistoricalCycleLoading = isFirstRequestForSelection && isHistoricalSelectionLoad;
 
       try {
         if (isMounted) {
           setIsLoading(true);
-          setIsCurrentCyclePageLoading(isCurrentCycleSelectionLoad || isInitialCurrentLoad);
-          if (isHistoricalSelectionLoad) {
+          setIsCurrentCyclePageLoading(shouldShowCurrentCyclePageLoading);
+          if (shouldShowHistoricalCycleLoading) {
             loadingStateTimeoutId = setTimeout(() => {
               if (isMounted && requestId === requestSequenceRef.current) {
                 setIsHistoricalCycleLoading(true);
@@ -143,6 +147,7 @@ export function useDashboardSnapshot(): UseDashboardSnapshotResult {
 
         if (isMounted) {
           hasCompletedInitialRequestRef.current = true;
+          isFirstRequestForSelection = false;
           setIsLoading(false);
           setIsHistoricalCycleLoading(false);
           setIsCurrentCyclePageLoading(false);

@@ -1,37 +1,41 @@
-export const aboutHighlights = [
+export const projectPurpose = {
+  title: "FibraX: Bitcoin Cycle Ratio Visualizer",
+  summary:
+    "FibraX is a Bitcoin cycle research dashboard built to visualize phase behavior, Fibonacci ratio zones, and historical analog structure. It maps how each market cycle - from bear bottom to bull peak - relates to prior cycles through ratio-based projections, giving researchers a structured way to explore cycle repetition without relying on deterministic price targets.",
+  details: [
+    "Visualizes Fibonacci retracement and extension zones across historical BTC cycles.",
+    "Maps cycle phases - accumulation, expansion, distribution, and contraction - to ratio-based timelines.",
+    "Pulls live BTC price from Coinbase every 60 seconds to position current price within active projection zones.",
+    "Presents scenarios as research bands, not guaranteed forecasts.",
+  ],
+};
+
+export const projectLimitations = [
   {
-    title: "Project Purpose",
-    body: "FibraX is a Bitcoin cycle research dashboard designed to visualize phase behavior, Fibonacci ratio zones, and historical analog structure.",
+    title: "Cycle analogs can fail",
+    body: "Bitcoin's market structure evolves with each cycle. Institutional adoption, ETF inflows, and macro regime shifts can break historical ratio patterns entirely.",
   },
   {
-    title: "Portfolio Focus",
-    body: "This project demonstrates frontend architecture, chart-first product thinking, and data visualization communication for technical audiences.",
+    title: "Projection zones are scenarios",
+    body: "Every band on the chart is a research scenario derived from prior cycle ratios - not a price target, not a trading signal, and not a guarantee of future behavior.",
   },
   {
-    title: "Research Positioning",
-    body: "FibraX is intentionally framed as a research tool, not a deterministic predictor or automated trading system.",
+    title: "Invalidation is always possible",
+    body: "Any projection must be re-evaluated when price action breaks outside established zones. FibraX does not auto-invalidate; human review is required.",
+  },
+  {
+    title: "Not financial advice",
+    body: "FibraX is a portfolio and research tool. Nothing on this dashboard constitutes investment advice, and it should never be used as the sole basis for financial decisions.",
   },
 ];
 
-export const technicalStack = [
-  "Next.js App Router",
-  "TypeScript strict mode",
-  "Tailwind CSS 4",
-  "Feature-based frontend architecture",
-  "Coinbase realtime market data (60s polling)",
-  "Formula-driven Fibonacci and cycle-ratio projection engine",
-];
-
-export const architecturePrinciples = [
-  "Thin route files that compose feature modules.",
-  "UI and model logic separation by feature ownership.",
-  "Typed datasets for repeatable rendering and review.",
-  "Incremental implementation: layout first, model refinement next.",
-];
-
-export const researchGuardrails = [
-  "Cycle analogs can fail in new liquidity regimes.",
-  "Projection zones are scenarios, not guaranteed targets.",
-  "Invalidation thresholds must be monitored continuously.",
-  "No investment recommendation is provided by this dashboard.",
-];
+export const developer = {
+  name: "Tenshin Ponteres",
+  role: "Full-Stack / Frontend Developer",
+  bio: "I like building web app projects that make technical ideas easier to explore. FibraX came from my personal interest in Bitcoin cycles, Fibonacci ratios, and market patterns, then turned into a project where I could combine data visualization, clean UI, and feature-based frontend architecture.",
+  github: {
+    label: "github.com/keishinnn",
+    url: "https://github.com/keishinnn",
+  },
+  builtWith: ["Next.js App Router", "TypeScript", "Tailwind CSS 4", "Coinbase API", "Feature-based architecture"],
+};
