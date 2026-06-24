@@ -35,7 +35,7 @@ export const cycleAnchors: CycleAnchor[] = [
     exactBearLow: 15479,
   },
   {
-    cycleId: "2022-2025",
+    cycleId: "2022-2026",
     halvingDate: "2024-04-20",
     startDate: "2022-11-21",
     endDate: null,

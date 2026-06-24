@@ -134,7 +134,7 @@ function buildCycleChain(lastHalvingYear: number = LAST_HALVING_YEAR): CycleChai
     const ath = previousNode.anchor.ath * (1 + EXTENSION_RATIO_PCT / 100);
 
     const futureAnchor: CycleAnchor = {
-      cycleId: `Cycle ${halvingYear}-${halvingYear + 3} (Assumed)`,
+      cycleId: `Cycle ${halvingYear}-${halvingYear + 4} (Assumed)`,
       halvingDate: buildIsoDate(halvingYear, templateHalvingDate),
       previousLow,
       ath,

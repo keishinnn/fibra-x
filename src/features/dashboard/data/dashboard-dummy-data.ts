@@ -6,31 +6,123 @@ import type {
 } from "@/features/dashboard/types/dashboard.types";
 
 export const dashboardCandles: CandlePoint[] = [
-  { id: "c1", open: 16800, close: 21200, high: 22900, low: 16200, phase: "Accumulation" },
-  { id: "c2", open: 21200, close: 26700, high: 27900, low: 20100, phase: "Early Bull" },
-  { id: "c3", open: 26700, close: 28900, high: 30100, low: 25100, phase: "Early Bull" },
-  { id: "c4", open: 28900, close: 33600, high: 34800, low: 27200, phase: "Mid Bull" },
-  { id: "c5", open: 33600, close: 41100, high: 44300, low: 32200, phase: "Mid Bull" },
-  { id: "c6", open: 41100, close: 65300, high: 73400, low: 39600, phase: "Euphoria" },
-  { id: "c7", open: 65300, close: 59200, high: 70200, low: 55200, phase: "Distribution" },
-  { id: "c8", open: 59200, close: 54400, high: 62100, low: 49800, phase: "Bear Market" },
-  { id: "c9", open: 54400, close: 68300, high: 71800, low: 53600, phase: "Recovery" },
-  { id: "c10", open: 68300, close: 81500, high: 84200, low: 67100, phase: "Mid Bull" },
-  { id: "c11", open: 81500, close: 93400, high: 98300, low: 79300, phase: "Euphoria" },
-  { id: "c12", open: 93400, close: 101400, high: 110900, low: 90200, phase: "Euphoria" },
-  { id: "c13", open: 101400, close: 98800, high: 113200, low: 94700, phase: "Distribution" },
+  {
+    id: "c1",
+    open: 16800,
+    close: 21200,
+    high: 22900,
+    low: 16200,
+    phase: "Accumulation",
+  },
+  {
+    id: "c2",
+    open: 21200,
+    close: 26700,
+    high: 27900,
+    low: 20100,
+    phase: "Early Bull",
+  },
+  {
+    id: "c3",
+    open: 26700,
+    close: 28900,
+    high: 30100,
+    low: 25100,
+    phase: "Early Bull",
+  },
+  {
+    id: "c4",
+    open: 28900,
+    close: 33600,
+    high: 34800,
+    low: 27200,
+    phase: "Mid Bull",
+  },
+  {
+    id: "c5",
+    open: 33600,
+    close: 41100,
+    high: 44300,
+    low: 32200,
+    phase: "Mid Bull",
+  },
+  {
+    id: "c6",
+    open: 41100,
+    close: 65300,
+    high: 73400,
+    low: 39600,
+    phase: "Euphoria",
+  },
+  {
+    id: "c7",
+    open: 65300,
+    close: 59200,
+    high: 70200,
+    low: 55200,
+    phase: "Distribution",
+  },
+  {
+    id: "c8",
+    open: 59200,
+    close: 54400,
+    high: 62100,
+    low: 49800,
+    phase: "Bear Market",
+  },
+  {
+    id: "c9",
+    open: 54400,
+    close: 68300,
+    high: 71800,
+    low: 53600,
+    phase: "Recovery",
+  },
+  {
+    id: "c10",
+    open: 68300,
+    close: 81500,
+    high: 84200,
+    low: 67100,
+    phase: "Mid Bull",
+  },
+  {
+    id: "c11",
+    open: 81500,
+    close: 93400,
+    high: 98300,
+    low: 79300,
+    phase: "Euphoria",
+  },
+  {
+    id: "c12",
+    open: 93400,
+    close: 101400,
+    high: 110900,
+    low: 90200,
+    phase: "Euphoria",
+  },
+  {
+    id: "c13",
+    open: 101400,
+    close: 98800,
+    high: 113200,
+    low: 94700,
+    phase: "Distribution",
+  },
 ];
 
-export const phaseLegend: Array<{ phase: CandlePoint["phase"]; tone: string }> = [
-  { phase: "Accumulation", tone: "bg-cyan-400/85" },
-  { phase: "Early Bull", tone: "bg-sky-400/85" },
-  { phase: "Mid Bull", tone: "bg-indigo-400/85" },
-  { phase: "Euphoria", tone: "bg-amber-400/85" },
-  { phase: "Distribution", tone: "bg-orange-400/85" },
-  { phase: "Bear Market", tone: "bg-rose-500/85" },
-  { phase: "Capitulation", tone: "bg-red-500/85" },
-  { phase: "Recovery", tone: "bg-lime-400/85" },
-];
+export const phaseLegend: Array<{ phase: CandlePoint["phase"]; tone: string }> =
+  [
+    { phase: "Accumulation", tone: "bg-cyan-400/85" },
+    { phase: "Early Bull", tone: "bg-sky-400/85" },
+    { phase: "Mid Bull", tone: "bg-indigo-400/85" },
+    { phase: "Euphoria", tone: "bg-amber-400/85" },
+    { phase: "Distribution", tone: "bg-orange-400/85" },
+    { phase: "Bear Market", tone: "bg-rose-500/85" },
+    { phase: "Capitulation", tone: "bg-red-500/85" },
+    { phase: "Recovery", tone: "bg-lime-400/85" },
+  ];
 
 export const chartLegend = [
   { label: "Phase Overlay", tone: "bg-zinc-300" },
@@ -73,7 +165,8 @@ export const metricItems: MetricItem[] = [
   {
     label: "Invalidation Level",
     value: "$73,200",
-    detail: "Weekly close below this level weakens cycle similarity confidence.",
+    detail:
+      "Weekly close below this level weakens cycle similarity confidence.",
   },
   {
     label: "Closest Analog Cycle",
@@ -110,10 +203,34 @@ export const projectionZones: ProjectionZone[] = [
 ];
 
 export const cycleComparison: CycleComparisonRow[] = [
-  { cycle: "2011-2015", bottom: "$2", peak: "$1,160", growth: "580x", drawdown: "-86%" },
-  { cycle: "2015-2018", bottom: "$152", peak: "$19,783", growth: "130x", drawdown: "-84%" },
-  { cycle: "2018-2022", bottom: "$3,122", peak: "$69,000", growth: "22.1x", drawdown: "-77%" },
-  { cycle: "2022-2025", bottom: "$15,476", peak: "$110,200", growth: "7.1x", drawdown: "-31%" },
+  {
+    cycle: "2011-2015",
+    bottom: "$2",
+    peak: "$1,160",
+    growth: "580x",
+    drawdown: "-86%",
+  },
+  {
+    cycle: "2015-2018",
+    bottom: "$152",
+    peak: "$19,783",
+    growth: "130x",
+    drawdown: "-84%",
+  },
+  {
+    cycle: "2018-2022",
+    bottom: "$3,122",
+    peak: "$69,000",
+    growth: "22.1x",
+    drawdown: "-77%",
+  },
+  {
+    cycle: "2022-2026",
+    bottom: "$15,476",
+    peak: "$110,200",
+    growth: "7.1x",
+    drawdown: "-31%",
+  },
 ];
 
 export const quickNotes = [
