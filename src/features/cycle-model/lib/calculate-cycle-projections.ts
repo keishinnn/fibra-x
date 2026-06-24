@@ -62,7 +62,8 @@ function toCurrencyRange(min: number, max: number): string {
 
 function getKnownAnchorsSorted(): CycleAnchor[] {
   return [...cycleAnchors].sort(
-    (a, b) => new Date(a.halvingDate).getTime() - new Date(b.halvingDate).getTime(),
+    (a, b) =>
+      new Date(a.halvingDate).getTime() - new Date(b.halvingDate).getTime(),
   );
 }
 
@@ -101,7 +102,9 @@ function getIntervalStepMs(interval: MarketInterval): number {
   return 30 * 24 * 60 * 60 * 1000;
 }
 
-function buildCycleChain(lastHalvingYear: number = LAST_HALVING_YEAR): CycleChainNode[] {
+function buildCycleChain(
+  lastHalvingYear: number = LAST_HALVING_YEAR,
+): CycleChainNode[] {
   const knownAnchors = getKnownAnchorsSorted();
   const currentHalvingYear = getCurrentKnownHalvingYear();
   const templateHalvingDate = getCurrentTemplateHalvingDate();
@@ -132,10 +135,14 @@ function buildCycleChain(lastHalvingYear: number = LAST_HALVING_YEAR): CycleChai
   ) {
     const previousLow = previousNode.projections.bear.projectedLow;
     const ath = previousNode.anchor.ath * (1 + EXTENSION_RATIO_PCT / 100);
-
+    const previousCycleEndYear = getHalvingYear(previousNode.anchor.halvingDate) + 2;
+    const cycleStartDate = buildIsoDate(halvingYear - 2, templateHalvingDate);
+    const cycleEndDate = buildIsoDate(halvingYear + 2, templateHalvingDate);
     const futureAnchor: CycleAnchor = {
-      cycleId: `Cycle ${halvingYear}-${halvingYear + 4} (Assumed)`,
+      cycleId: `Cycle ${previousCycleEndYear}-${previousCycleEndYear + 4} (Assumed)`,
       halvingDate: buildIsoDate(halvingYear, templateHalvingDate),
+      startDate: cycleStartDate,
+      endDate: cycleEndDate,
       previousLow,
       ath,
       historicalDrawdownPct: null,
@@ -160,8 +167,13 @@ function buildCycleChain(lastHalvingYear: number = LAST_HALVING_YEAR): CycleChai
   return chain;
 }
 
-function getCycleNodeById(chain: CycleChainNode[], cycleId: string | null | undefined): CycleChainNode {
-  const currentNode = chain.find((node) => node.descriptor.kind === "current") ?? chain[chain.length - 1];
+function getCycleNodeById(
+  chain: CycleChainNode[],
+  cycleId: string | null | undefined,
+): CycleChainNode {
+  const currentNode =
+    chain.find((node) => node.descriptor.kind === "current") ??
+    chain[chain.length - 1];
 
   if (!cycleId) {
     return currentNode;
@@ -170,8 +182,13 @@ function getCycleNodeById(chain: CycleChainNode[], cycleId: string | null | unde
   return chain.find((node) => node.descriptor.id === cycleId) ?? currentNode;
 }
 
-function getPreviousNode(chain: CycleChainNode[], node: CycleChainNode): CycleChainNode | null {
-  const index = chain.findIndex((item) => item.descriptor.id === node.descriptor.id);
+function getPreviousNode(
+  chain: CycleChainNode[],
+  node: CycleChainNode,
+): CycleChainNode | null {
+  const index = chain.findIndex(
+    (item) => item.descriptor.id === node.descriptor.id,
+  );
   if (index <= 0) {
     return null;
   }
@@ -187,10 +204,28 @@ function generateSyntheticCandles(
   interval: MarketInterval,
   limit: number,
 ): MarketCandle[] {
-  const count = Math.max(30, Math.floor(limit));
   const stepMs = getIntervalStepMs(interval);
-  const halvingMs = new Date(`${node.descriptor.halvingDate}T00:00:00.000Z`).getTime();
-  const startMs = halvingMs - Math.floor(count * 0.3) * stepMs;
+  const hasCycleWindow = Boolean(node.anchor.startDate && node.anchor.endDate);
+
+  let startMs: number;
+  let count: number;
+
+  if (node.descriptor.kind === "future" && hasCycleWindow) {
+    const cycleStartMs = new Date(`${node.anchor.startDate}T00:00:00.000Z`).getTime();
+    const cycleEndMs = new Date(`${node.anchor.endDate}T00:00:00.000Z`).getTime();
+    const pointsAcrossWindow = Math.floor((cycleEndMs - cycleStartMs) / stepMs) + 1;
+
+    startMs = cycleStartMs;
+    count = Math.max(30, pointsAcrossWindow);
+  } else {
+    const fallbackCount = Math.max(30, Math.floor(limit));
+    const halvingMs = new Date(
+      `${node.descriptor.halvingDate}T00:00:00.000Z`,
+    ).getTime();
+
+    startMs = halvingMs - Math.floor(fallbackCount * 0.3) * stepMs;
+    count = fallbackCount;
+  }
 
   const low = node.anchor.previousLow;
   const ath = node.anchor.ath;
@@ -207,22 +242,30 @@ function generateSyntheticCandles(
     if (progress < 0.18) {
       baselinePrice = low + (fib236 * 0.9 - low) * (progress / 0.18);
     } else if (progress < 0.58) {
-      baselinePrice = fib236 * 0.9 + (ath - fib236 * 0.9) * ((progress - 0.18) / 0.4);
+      baselinePrice =
+        fib236 * 0.9 + (ath - fib236 * 0.9) * ((progress - 0.18) / 0.4);
     } else if (progress < 0.72) {
       baselinePrice = ath - ath * 0.07 * ((progress - 0.58) / 0.14);
     } else {
-      baselinePrice = ath * 0.93 + (projectedBearLow - ath * 0.93) * ((progress - 0.72) / 0.28);
+      baselinePrice =
+        ath * 0.93 +
+        (projectedBearLow - ath * 0.93) * ((progress - 0.72) / 0.28);
     }
 
-    const wave = Math.sin(index * 0.47) * 0.015 + Math.cos(index * 0.19) * 0.008;
+    const wave =
+      Math.sin(index * 0.47) * 0.015 + Math.cos(index * 0.19) * 0.008;
     const close = Math.max(projectedBearLow * 0.85, baselinePrice * (1 + wave));
     const open = previousClose;
-    const high = Math.max(open, close) * (1 + 0.012 + Math.abs(Math.sin(index * 0.31)) * 0.01);
+    const high =
+      Math.max(open, close) *
+      (1 + 0.012 + Math.abs(Math.sin(index * 0.31)) * 0.01);
     const lowPrice = Math.max(
       projectedBearLow * 0.75,
-      Math.min(open, close) * (1 - 0.012 - Math.abs(Math.cos(index * 0.23)) * 0.008),
+      Math.min(open, close) *
+        (1 - 0.012 - Math.abs(Math.cos(index * 0.23)) * 0.008),
     );
-    const volume = 25000 + Math.abs(Math.sin(index * 0.29)) * 18000 + progress * 6000;
+    const volume =
+      25000 + Math.abs(Math.sin(index * 0.29)) * 18000 + progress * 6000;
 
     candles.push({
       time: startMs + index * stepMs,
@@ -259,7 +302,11 @@ function buildSyntheticMarketPayload(options: {
   limit: number;
   symbol?: string;
 }): MarketPayload {
-  const candles = generateSyntheticCandles(options.node, options.interval, options.limit);
+  const candles = generateSyntheticCandles(
+    options.node,
+    options.interval,
+    options.limit,
+  );
 
   return {
     symbol: options.symbol ?? "BTC-USD",
@@ -316,7 +363,10 @@ export function calculateFibRetracementLevel(
   return previousLow + (ath - previousLow) * ratio;
 }
 
-export function calculateProjectedBearLow(fibLevel: number, drawdownPct: number): number {
+export function calculateProjectedBearLow(
+  fibLevel: number,
+  drawdownPct: number,
+): number {
   return fibLevel * (1 + drawdownPct / 100);
 }
 
@@ -324,7 +374,11 @@ export function buildProjectionSet(
   anchor: CycleAnchor,
   drawdownPct: number = defaultBearDrawdownPct,
 ): ProjectionSet {
-  const fib236 = calculateFibRetracementLevel(anchor.ath, anchor.previousLow, FIB_LEVEL);
+  const fib236 = calculateFibRetracementLevel(
+    anchor.ath,
+    anchor.previousLow,
+    FIB_LEVEL,
+  );
   const bearScenarios = bearDrawdownScenarios.map((scenario) => ({
     id: scenario.id,
     label: scenario.label,
@@ -365,7 +419,9 @@ export function getCurrentCycleId(): string {
   return toCycleId(getCurrentKnownHalvingYear());
 }
 
-export function getCycleCatalog(lastHalvingYear: number = LAST_HALVING_YEAR): CycleCatalog {
+export function getCycleCatalog(
+  lastHalvingYear: number = LAST_HALVING_YEAR,
+): CycleCatalog {
   return buildCycleCatalog(buildCycleChain(lastHalvingYear));
 }
 
@@ -401,7 +457,10 @@ export function getCycleSelectionMeta(
   };
 }
 
-export function detectPhaseState(currentPrice: number, projections: ProjectionSet): PhaseState {
+export function detectPhaseState(
+  currentPrice: number,
+  projections: ProjectionSet,
+): PhaseState {
   const [conservative, median, extension] = projections.bull;
   const fib236 = projections.bear.fib236;
   const projectedBearLow = projections.bear.projectedLow;
@@ -437,7 +496,10 @@ export function detectPhaseState(currentPrice: number, projections: ProjectionSe
       "Price is beyond the extension zone, indicating potential overextension where historical analog reliability can degrade quickly.";
   }
 
-  const activeZone = toCurrencyRange(conservative.projectedPrice, extension.projectedPrice);
+  const activeZone = toCurrencyRange(
+    conservative.projectedPrice,
+    extension.projectedPrice,
+  );
 
   return {
     phase,
@@ -460,7 +522,10 @@ function buildCycleDashboardSnapshot(options: {
   return {
     market: options.market,
     projections: options.selectedNode.projections,
-    phaseState: detectPhaseState(options.market.ticker.price, options.selectedNode.projections),
+    phaseState: detectPhaseState(
+      options.market.ticker.price,
+      options.selectedNode.projections,
+    ),
     selectedCycle: options.selectedNode.descriptor,
     cycleCatalog: buildCycleCatalog(options.chain),
     mode: options.mode,
@@ -469,9 +534,14 @@ function buildCycleDashboardSnapshot(options: {
     chartConnection: {
       previousCycleId: previousNode?.descriptor.id ?? null,
       previousCycleLabel: previousNode?.descriptor.label ?? null,
-      bridgeStartPrice: previousNode ? previousNode.projections.bear.fib236 : null,
-      bridgeEndPrice: previousNode ? options.selectedNode.anchor.previousLow : null,
-      bullLeadTargetPrice: options.selectedNode.projections.bull[1].projectedPrice,
+      bridgeStartPrice: previousNode
+        ? previousNode.projections.bear.fib236
+        : null,
+      bridgeEndPrice: previousNode
+        ? options.selectedNode.anchor.previousLow
+        : null,
+      bullLeadTargetPrice:
+        options.selectedNode.projections.bull[1].projectedPrice,
     },
     assumptions: getAssumptionMessages(options.mode),
     disclaimer:
@@ -486,8 +556,11 @@ export function buildRealtimeDashboardSnapshot(options: {
 }): DashboardSnapshot {
   const chain = buildCycleChain(options.lastHalvingYear ?? LAST_HALVING_YEAR);
   const currentNode = getCycleNodeById(chain, getCurrentCycleId());
-  const selectedNode = options.cycleId ? getCycleNodeById(chain, options.cycleId) : currentNode;
-  const realtimeNode = selectedNode.descriptor.kind === "current" ? selectedNode : currentNode;
+  const selectedNode = options.cycleId
+    ? getCycleNodeById(chain, options.cycleId)
+    : currentNode;
+  const realtimeNode =
+    selectedNode.descriptor.kind === "current" ? selectedNode : currentNode;
 
   return buildCycleDashboardSnapshot({
     market: options.market,
@@ -505,9 +578,13 @@ export function buildHistoricalDashboardSnapshot(options: {
 }): DashboardSnapshot {
   const chain = buildCycleChain(options.lastHalvingYear ?? LAST_HALVING_YEAR);
   const selectedNode = getCycleNodeById(chain, options.cycleId);
-  const firstHistoricalNode = chain.find((node) => node.descriptor.kind === "historical");
+  const firstHistoricalNode = chain.find(
+    (node) => node.descriptor.kind === "historical",
+  );
   const historicalNode =
-    selectedNode.descriptor.kind === "historical" ? selectedNode : (firstHistoricalNode ?? selectedNode);
+    selectedNode.descriptor.kind === "historical"
+      ? selectedNode
+      : (firstHistoricalNode ?? selectedNode);
 
   return buildCycleDashboardSnapshot({
     market: options.market,
@@ -543,7 +620,9 @@ export function buildAssumptionDashboardSnapshot(options: {
   });
 }
 
-export function buildDashboardSnapshot(market: MarketPayload): DashboardSnapshot {
+export function buildDashboardSnapshot(
+  market: MarketPayload,
+): DashboardSnapshot {
   return buildRealtimeDashboardSnapshot({ market });
 }
 
